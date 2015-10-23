@@ -1,7 +1,8 @@
 // (C) Copyright 2014-2015 Hewlett-Packard Development Company, L.P.
 
 var React = require('react');
-var IntlMixin = require('grommet/mixins/GrommetIntlMixin');
+var ReactIntl = require('react-intl');
+var FormattedMessage = ReactIntl.FormattedMessage;
 var Header = require('grommet/components/Header');
 var Menu = require('grommet/components/Menu');
 var Anchor = require('grommet/components/Anchor');
@@ -24,7 +25,9 @@ var Finder = React.createClass({
     searchText: React.PropTypes.string.isRequired
   },
 
-  mixins: [IntlMixin],
+  contextTypes: {
+    intl: React.PropTypes.object.isRequired
+  },
 
   componentDidMount: function () {
     this.refs.search.focus();
@@ -39,7 +42,12 @@ var Finder = React.createClass({
   },
 
   render: function() {
-    var title = this.getGrommetIntlMessage(this.props.scope.label + " Finder");
+
+    var titleLabel = this.props.scope.label + " Finder";
+    var title = (
+      <FormattedMessage id={titleLabel} defaultMessage={titleLabel} />
+    );
+
     var texture;
     var colorIndex = this.props.scope.colorIndex;
     var footer;
@@ -62,7 +70,7 @@ var Finder = React.createClass({
       var scope = config.scopes[key];
       return (
         <Anchor key={key} onClick={this._onScope.bind(this, scope)}>
-          {this.getGrommetIntlMessage(scope.label)}
+          <FormattedMessage id={scope.label} defaultMessage={scope.label} />
         </Anchor>
       );
     }.bind(this));
@@ -77,7 +85,7 @@ var Finder = React.createClass({
             {title}
           </Title>
           <Search ref="search" inline={true} className="flex"
-            placeHolder={this.getGrommetIntlMessage('Search')}
+            placeHolder="Search"
             defaultValue={this.props.searchText}
             onChange={this.props.onSearch} />
           <Menu inline={false}>

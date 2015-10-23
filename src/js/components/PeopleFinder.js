@@ -1,8 +1,9 @@
 // (C) Copyright 2014-2015 Hewlett-Packard Development Company, L.P.
 
 var React = require('react');
+var ReactIntl = require('react-intl');
+var FormattedMessage = ReactIntl.FormattedMessage;
 var App = require('grommet/components/App');
-var IntlMixin = require('grommet/mixins/GrommetIntlMixin');
 var Finder = require('./Finder');
 var DirectoryList = require('./DirectoryList');
 var Person = require('./Person');
@@ -16,8 +17,6 @@ var config = require('../config');
  */
 
 var PeopleFinder = React.createClass({
-
-  mixins: [IntlMixin],
 
   getInitialState: function () {
     var params = this._paramsFromQuery(window.location.search);
@@ -49,7 +48,10 @@ var PeopleFinder = React.createClass({
   _pushState: function () {
     var url = window.location.href.split('?')[0] + '?';
     url += 'scope=' + encodeURIComponent(this.state.scope.ou);
-    var label = this.getGrommetIntlMessage(this.state.scope.label + " Finder");
+    var labelFormatted = this.state.scope.label + " Finder";
+    var label = (
+      <FormattedMessage id={labelFormatted} defaultMessage={labelFormatted} />
+    );
     if (this.state.searchText) {
       url += '&search=' + encodeURIComponent(this.state.searchText);
       label = this.state.searchText;
@@ -136,7 +138,7 @@ var PeopleFinder = React.createClass({
     }
 
     return (
-      <App centered={false}>
+      <App messages={this.props.messages} centered={false}>
         {contents}
       </App>
     );

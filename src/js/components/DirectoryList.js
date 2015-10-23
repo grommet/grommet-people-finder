@@ -1,7 +1,6 @@
 // (C) Copyright 2014-2015 Hewlett-Packard Development Company, L.P.
 
 var React = require('react');
-var IntlMixin = require('grommet/mixins/GrommetIntlMixin');
 var ReactIntl = require('react-intl');
 var FormattedMessage = ReactIntl.FormattedMessage;
 var Rest = require('grommet/utils/Rest');
@@ -19,8 +18,6 @@ var DirectoryList = React.createClass({
     onSelect: React.PropTypes.func.isRequired,
     onScope: React.PropTypes.func.isRequired
   },
-
-  mixins: [IntlMixin],
 
   getInitialState: function () {
     return {
@@ -41,7 +38,7 @@ var DirectoryList = React.createClass({
     }
   },
 
-  componentDidUnmount: function () {
+  componentWillUnmount: function () {
     clearTimeout(this._searchTimer);
   },
 
@@ -70,8 +67,9 @@ var DirectoryList = React.createClass({
         state.data = res.body;
       } else if (res.body.length > 0) {
         var message = (
-          <FormattedMessage message={scope.label + ' matching'}
-            search={this.props.searchText} />
+          <FormattedMessage id={scope.label + ' matching'}
+            defaultMessage={scope.label + ' matching'}
+            values={{search: this.props.searchText}} />
         );
         var item = this._simulateItem(message, scope.ou, <Right />);
         item._scope = scope;
@@ -149,7 +147,10 @@ var DirectoryList = React.createClass({
       busy[schema[0].attribute] = <Spinning />;
       data = [busy];
     } else if (this.props.searchText && this.state.data.length === 0) {
-      empty = this.getGrommetIntlMessage('No matching ' + this.props.scope.label.toLowerCase());
+      var noMatchingLabel = 'No matching ' + this.props.scope.label.toLowerCase();
+      empty = (
+        <FormattedMessage id={noMatchingLabel} defaultMessage={noMatchingLabel} />
+      );
       data = [];
     }
 
@@ -162,9 +163,10 @@ var DirectoryList = React.createClass({
 
     var more;
     if (data.length >= 20) {
+      var moreLabel = 'Refine search to find more';
       more = (
         <Footer pad="medium">
-          {this.getGrommetIntlMessage('Refine search to find more')}
+          <FormattedMessage id={moreLabel} defaultMessage={moreLabel} />
         </Footer>
       );
     }

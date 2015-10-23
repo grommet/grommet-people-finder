@@ -1,7 +1,8 @@
 // (C) Copyright 2014-2015 Hewlett-Packard Development Company, L.P.
 
 var React = require('react');
-var IntlMixin = require('grommet/mixins/GrommetIntlMixin');
+var ReactIntl = require('react-intl');
+var FormattedMessage = ReactIntl.FormattedMessage;
 var Rest = require('grommet/utils/Rest');
 var Header = require('grommet/components/Header');
 var Title = require('grommet/components/Title');
@@ -19,8 +20,6 @@ var Group = React.createClass({
     onClose: React.PropTypes.func.isRequired,
     onSelect: React.PropTypes.func.isRequired
   },
-
-  mixins: [IntlMixin],
 
   getInitialState: function () {
     return {group: {}, owners: [], scope: config.scopes.groups,
@@ -87,7 +86,10 @@ var Group = React.createClass({
   },
 
   render: function() {
-    var appTitle = this.getGrommetIntlMessage('Groups Finder');
+    var appTitle = (
+      <FormattedMessage id="Groups Finder" defaultMessage="Groups Finder" />
+    );
+
     var group = this.state.group;
     var mails = Array.isArray(group.mail) ? group.mail : [group.mail];
     mails = mails.map(function (mail) {

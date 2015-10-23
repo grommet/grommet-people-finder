@@ -27,7 +27,7 @@ var Map = React.createClass({
 
   componentDidMount: function () {
     if (! this.state.map) {
-      var mapElement = this.refs.map.getDOMNode();
+      var mapElement = this.refs.map;
       var options = {
         touchZoom: false,
         scrollWheelZoom: false
@@ -77,7 +77,7 @@ var Map = React.createClass({
       console.log('!!! geocode response error', err, res);
       if (this.state.map) {
         this.state.map.remove();
-        this.refs.map.getDOMNode().className = "";
+        this.refs.map.className = "";
       }
       this.setState({map: null});
     }

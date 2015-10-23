@@ -1,7 +1,8 @@
 // (C) Copyright 2014-2015 Hewlett-Packard Development Company, L.P.
 
 var React = require('react');
-var IntlMixin = require('grommet/mixins/GrommetIntlMixin');
+var ReactIntl = require('react-intl');
+var FormattedMessage = ReactIntl.FormattedMessage;
 var Rest = require('grommet/utils/Rest');
 var Header = require('grommet/components/Header');
 var Title = require('grommet/components/Title');
@@ -18,8 +19,6 @@ var LocationComponent = React.createClass({
     id: React.PropTypes.string.isRequired,
     onClose: React.PropTypes.func.isRequired
   },
-
-  mixins: [IntlMixin],
 
   getInitialState: function () {
     return {location: {}, scope: config.scopes.locations};
@@ -55,7 +54,9 @@ var LocationComponent = React.createClass({
   },
 
   render: function() {
-    var appTitle = this.getGrommetIntlMessage('Locations Finder');
+    var appTitle = (
+      <FormattedMessage id="Locations Finder" defaultMessage="Locations Finder" />
+    );
     var loc = this.state.location;
     var address;
     if (loc.postalAddress) {

@@ -1,7 +1,8 @@
 // (C) Copyright 2014-2015 Hewlett-Packard Development Company, L.P.
 
 var React = require('react');
-var IntlMixin = require('grommet/mixins/GrommetIntlMixin');
+var ReactIntl = require('react-intl');
+var FormattedMessage = ReactIntl.FormattedMessage;
 var Rest = require('grommet/utils/Rest');
 var Split = require('grommet/components/Split');
 var Box = require('grommet/components/Box');
@@ -27,8 +28,6 @@ var Person = React.createClass({
     onClose: React.PropTypes.func.isRequired,
     onSelect: React.PropTypes.func.isRequired
   },
-
-  mixins: [IntlMixin],
 
   getInitialState: function () {
     return {view: 'organization', person: {}, scope: config.scopes.people};
@@ -76,7 +75,9 @@ var Person = React.createClass({
   },
 
   render: function() {
-    var appTitle = this.getGrommetIntlMessage('People Finder');
+    var appTitle = (
+      <FormattedMessage id="People Finder" defaultMessage="People Finder" />
+    );
     var person = this.state.person;
 
     var view;

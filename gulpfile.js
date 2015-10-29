@@ -1,3 +1,5 @@
+// (C) Copyright 2014-2015 Hewlett Packard Enterprise Development LP
+
 var gulp = require('gulp');
 var path = require('path');
 var nodemon = require('gulp-nodemon');

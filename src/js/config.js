@@ -1,3 +1,5 @@
+// (C) Copyright 2014-2015 Hewlett Packard Enterprise Development LP
+
 module.exports = {
 
   ldap_base_url: "ldap://ldap.hp.com",

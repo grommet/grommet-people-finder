@@ -1,4 +1,4 @@
-// (C) Copyright 2014-2015 Hewlett-Packard Development Company, L.P.
+// (C) Copyright 2014-2015 Hewlett Packard Enterprise Development LP
 
 var React = require('react');
 var ReactIntl = require('react-intl');
@@ -60,7 +60,7 @@ var Finder = React.createClass({
           pad={{vertical: "small", horizontal: "medium"}}>
           <img src="img/hpesm_pri_grn_rev_rgb.svg" alt="logo" className="logo" />
           <Box className="flex" align="end">
-            <Paragraph size="small">© Copyright 2015 Hewlett-Packard Development Company, L.P.</Paragraph>
+            <Paragraph size="small">© Copyright 2015 Hewlett Packard Enterprise Development LP</Paragraph>
           </Box>
         </Footer>
       );

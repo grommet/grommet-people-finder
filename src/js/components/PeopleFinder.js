@@ -138,7 +138,7 @@ var PeopleFinder = React.createClass({
     }
 
     return (
-      <App messages={this.props.messages} centered={false}>
+      <App centered={false}>
         {contents}
       </App>
     );

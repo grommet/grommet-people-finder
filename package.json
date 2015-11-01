@@ -1,7 +1,7 @@
 {
   "name": "grommet-people-finder",
   "description": "App that allows searching for people in your organization",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "authors": [
     "Alan Souza",
     "Bryan Jacquot",
@@ -21,7 +21,7 @@
     "cookie-parser": "^1.3.4",
     "express": "^4.10.6",
     "express-http-proxy": "^0.6.0",
-    "grommet": "https://github.com/grommet/grommet/tarball/next",
+    "grommet": "^0.4.0",
     "gulp": "^3.9.0",
     "gulp-nodemon": "^2.0.3",
     "json-server": "^0.5.5",

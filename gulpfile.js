@@ -35,6 +35,11 @@ var opts = {
   devServerProxy: {
     "/ldap/*": 'http://localhost:8020'
   },
+  sync: {
+    hostname: 'grommet.us.rdlabs.hpecorp.net',
+    username: 'ligo',
+    remoteDestination: '/var/www/html/examples/people-finder/dist'
+  },
   devPreprocess: ['start-backend']
 };
 

@@ -88,7 +88,7 @@ var Finder = React.createClass({
             placeHolder="Search"
             defaultValue={this.props.searchText}
             onChange={this.props.onSearch} />
-          <Menu inline={false}>
+          <Menu inline={false} dropColorIndex={colorIndex}>
             {scopeAnchors}
           </Menu>
         </Header>

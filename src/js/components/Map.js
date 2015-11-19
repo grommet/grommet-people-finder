@@ -12,6 +12,7 @@ var Map = React.createClass({
     country: React.PropTypes.string,
     latitude: React.PropTypes.string,
     longitude: React.PropTypes.string,
+    postalCode: React.PropTypes.string,
     state: React.PropTypes.string,
     street: React.PropTypes.string,
     title: React.PropTypes.string
@@ -101,7 +102,7 @@ var Map = React.createClass({
   },
 
   _renderAddress: function () {
-    return [this.props.street, this.props.city, this.props.state, this.props.country];
+    return [this.props.street, this.props.city, this.props.state, this.props.postalCode, this.props.country];
   },
 
   render: function() {

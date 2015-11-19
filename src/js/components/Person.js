@@ -127,7 +127,8 @@ var Person = React.createClass({
               </Section>
             </Box>
             <Map title={person.o}
-              street={person.street} city={person.l} state={person.st} country={person.c} />
+              street={person.street} city={person.l} state={person.st}
+              postalCode={person.postalCode} country={person.c} />
           </Article>
         </div>
         <Sidebar>

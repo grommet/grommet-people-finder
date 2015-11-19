@@ -6,7 +6,7 @@ var Section = require('grommet/components/Section');
 var Header = require('grommet/components/Header');
 var Attribute = require('grommet/components/Attribute');
 
-var About = React.createClass({
+var Details = React.createClass({
 
   propTypes: {
     person: React.PropTypes.object.isRequired
@@ -53,4 +53,4 @@ var About = React.createClass({
 
 });
 
-module.exports = About;
+module.exports = Details;

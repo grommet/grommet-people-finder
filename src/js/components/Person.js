@@ -12,11 +12,11 @@ var Article = require('grommet/components/Article');
 var Section = require('grommet/components/Section');
 var Sidebar = require('grommet/components/Sidebar');
 var Menu = require('grommet/components/Menu');
-var SearchIcon = require('grommet/components/icons/Search');
-var EditIcon = require('grommet/components/icons/Edit');
+var SearchIcon = require('grommet/components/icons/base/Search');
+var EditIcon = require('grommet/components/icons/base/Edit');
 var Logo = require('./Logo');
 var Map = require('./Map');
-var About = require('./About');
+var Details = require('./Details');
 var PersonGroups = require('./PersonGroups');
 var Organization = require('./Organization');
 var config = require('../config');
@@ -62,8 +62,8 @@ var Person = React.createClass({
     Rest.get('/ldap/', params).end(this._onPersonResponse);
   },
 
-  _onAbout: function () {
-    this.setState({view: 'about'});
+  _onDetails: function () {
+    this.setState({view: 'details'});
   },
 
   _onGroups: function () {
@@ -82,9 +82,9 @@ var Person = React.createClass({
 
     var view;
     var viewLabel;
-    if ('about' === this.state.view) {
-      view = <About person={person}/>;
-      viewLabel = 'About';
+    if ('details' === this.state.view) {
+      view = <Details person={person}/>;
+      viewLabel = 'Details';
     } else if ('groups' === this.state.view) {
       view = <PersonGroups person={person} onSelect={this.props.onSelect} />;
       viewLabel = 'Groups';
@@ -134,9 +134,9 @@ var Person = React.createClass({
           <Header large={true} pad={{horizontal: "medium"}} justify="between" separator="bottom">
             <h3>{viewLabel}</h3>
             <Menu inline={false} dropAlign={{right: 'right'}} large={true}>
-              <a onClick={this._onAbout}>About</a>
-              <a onClick={this._onGroups}>Groups</a>
               <a onClick={this._onOrganization}>Organization</a>
+              <a onClick={this._onDetails}>Details</a>
+              <a onClick={this._onGroups}>Groups</a>
             </Menu>
           </Header>
           {view}

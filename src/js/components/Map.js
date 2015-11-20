@@ -54,9 +54,9 @@ var Map = React.createClass({
     });
   },
 
-  _setMap: function () {
+  _setMap: function (mapSize) {
     var map = this.state.map;
-    map.setView([this.state.latitude, this.state.longitude], 14);
+    map.setView([this.state.latitude, this.state.longitude], mapSize || 14);
     Leaflet.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -70,34 +70,67 @@ var Map = React.createClass({
     circle.bindPopup(address).openPopup();
   },
 
-  _onGeocodeResponse: function (err, res) {
-    if (! err && res.ok && res.body && res.body[0]) {
-      var place = res.body[0];
-      this.setState({latitude: place.lat, longitude: place.lon}, this._setMap);
-    } else {
-      console.log('!!! geocode response error', err, res);
-      if (this.state.map) {
-        this.state.map.remove();
-        this.refs.map.className = "";
-      }
-      this.setState({map: null});
-    }
-    this.setState({busy: false});
-  },
-
-  _getGeocode: function (props) {
-    if (props.street) {
-      this.setState({busy: true, place: null});
+  _getGeocode: function (props, atempts) {
+    if (props.country) {
       var params = {
-        street: props.street.replace(/.+? \$ /g, '').replace('  BP1220', ''),
-        city: props.city,
         state: props.state,
         country: props.country,
         format: 'json'
       };
+
+      if (!atempts) {
+        atempts = 1;
+        this.setState({busy: true, place: null});
+
+        if (props.street) {
+          params.street = props.street.replace(/.+? \$ /g, '').replace('  BP1220', '');
+        }
+
+        if (props.postalCode) {
+          params.postalcode = props.postalCode.split('-')[0];
+        }
+      } else if (atempts === 3) {
+        params = {
+          city: props.city,
+          country: props.country,
+          format: 'json'
+        };
+      } else if (atempts === 4) {
+        params = {
+          country: props.country,
+          format: 'json'
+        };
+      }
+
+      // need to change map zoom depending on the number of atempts
+      var mapSize = {
+        1: 14,
+        2: 10,
+        3: 10,
+        4: 5
+      };
+
       Rest
         .get("http://nominatim.openstreetmap.org/search", params)
-        .end(this._onGeocodeResponse);
+        .end(function (err, res) {
+          if (! err && res.ok && res.body && res.body[0]) {
+            var place = res.body[0];
+            console.log(atempts);
+            this.setState(
+              {latitude: place.lat, longitude: place.lon, busy: false},
+              this._setMap.bind(this, mapSize[atempts])
+            );
+          } else if (atempts < 4) {
+            this._getGeocode(props, ++atempts);
+          } else {
+            console.log('!!! geocode response error', err, res);
+            if (this.state.map) {
+              this.state.map.remove();
+              this.refs.map.className = "";
+            }
+            this.setState({map: null, busy: false});
+          }
+        }.bind(this));
     }
   },
 

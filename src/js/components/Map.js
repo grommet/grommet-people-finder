@@ -70,7 +70,7 @@ var Map = React.createClass({
     circle.bindPopup(address).openPopup();
   },
 
-  _getGeocode: function (props, atempts) {
+  _getGeocode: function (props, attempts) {
     if (props.country) {
       var params = {
         state: props.state,
@@ -78,8 +78,8 @@ var Map = React.createClass({
         format: 'json'
       };
 
-      if (!atempts) {
-        atempts = 1;
+      if (!attempts) {
+        attempts = 1;
         this.setState({busy: true, place: null});
 
         if (props.street) {
@@ -89,20 +89,20 @@ var Map = React.createClass({
         if (props.postalCode) {
           params.postalcode = props.postalCode.split('-')[0];
         }
-      } else if (atempts === 3) {
+      } else if (attempts === 3) {
         params = {
           city: props.city,
           country: props.country,
           format: 'json'
         };
-      } else if (atempts === 4) {
+      } else if (attempts === 4) {
         params = {
           country: props.country,
           format: 'json'
         };
       }
 
-      // need to change map zoom depending on the number of atempts
+      // need to change map zoom depending on the number of attempts
       var mapSize = {
         1: 14,
         2: 10,
@@ -115,13 +115,12 @@ var Map = React.createClass({
         .end(function (err, res) {
           if (! err && res.ok && res.body && res.body[0]) {
             var place = res.body[0];
-            console.log(atempts);
             this.setState(
               {latitude: place.lat, longitude: place.lon, busy: false},
-              this._setMap.bind(this, mapSize[atempts])
+              this._setMap.bind(this, mapSize[attempts])
             );
-          } else if (atempts < 4) {
-            this._getGeocode(props, ++atempts);
+          } else if (attempts < 4) {
+            this._getGeocode(props, ++attempts);
           } else {
             console.log('!!! geocode response error', err, res);
             if (this.state.map) {

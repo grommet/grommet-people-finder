@@ -174,7 +174,7 @@ var DirectoryList = React.createClass({
     return (
       <div>
         <List key="results" large={true} data={data} emptyIndicator={empty}
-          schema={schema} onSelect={this._onSelect} />,
+          schema={schema} onSelect={this._onSelect} />
         {more}
       </div>
     );

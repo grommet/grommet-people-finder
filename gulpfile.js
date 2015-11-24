@@ -1,5 +1,6 @@
 // (C) Copyright 2014-2015 Hewlett Packard Enterprise Development LP
 
+var argv = require('yargs').argv;
 var gulp = require('gulp');
 var path = require('path');
 var nodemon = require('gulp-nodemon');
@@ -21,10 +22,6 @@ var opts = {
   mainScss: 'src/scss/index.scss',
   webpack: {
     resolve: {
-      // alias: {
-      //   'grommet/scss': path.resolve(__dirname, '../grommet/src/scss'),
-      //   'grommet': path.resolve(__dirname, '../grommet/src/js')
-      // },
       root: [
         path.resolve(__dirname, 'src/js'),
         path.resolve(__dirname, 'src/scss'),
@@ -41,8 +38,19 @@ var opts = {
     username: 'ligo',
     remoteDestination: '/var/www/html/examples/people-finder/dist'
   },
-  devPreprocess: ['start-backend']
+  alias: {
+    'grommet/scss': path.resolve(__dirname, '../grommet/src/scss'),
+    'grommet': path.resolve(__dirname, '../grommet/src/js')
+  },
+  devPreprocess: ['start-backend', 'set-webpack-alias']
 };
+
+gulp.task('set-webpack-alias', function () {
+  if (opts.alias && argv.useAlias) {
+    console.log('Using local alias for development.');
+    opts.webpack.resolve.alias = opts.alias;
+  }
+});
 
 gulp.task('start-backend', function() {
   nodemon({

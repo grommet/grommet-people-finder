@@ -1,39 +1,29 @@
-// (C) Copyright 2014-2015 Hewlett Packard Enterprise Development LP
+// (C) Copyright 2014-2016 Hewlett Packard Enterprise Development LP
 
-var React = require('react');
-var Leaflet = require('leaflet');
-var Section = require('grommet/components/Section');
-var Rest = require('grommet/utils/Rest');
+import React, { Component, PropTypes } from 'react';
+import Leaflet from 'leaflet';
+import Section from 'grommet/components/Section';
+import Rest from 'grommet/utils/Rest';
 
-var Map = React.createClass({
+export default class Map extends Component {
 
-  propTypes: {
-    city: React.PropTypes.string,
-    country: React.PropTypes.string,
-    latitude: React.PropTypes.string,
-    longitude: React.PropTypes.string,
-    postalCode: React.PropTypes.string,
-    state: React.PropTypes.string,
-    street: React.PropTypes.string,
-    title: React.PropTypes.string
-  },
-
-  getInitialState: function () {
-    return {
+  constructor (props) {
+    super(props);
+    this.state = {
       busy: false,
       latitude: this.props.latitude,
       longitude: this.props.longitude
     };
-  },
+  }
 
-  componentDidMount: function () {
+  componentDidMount () {
     if (! this.state.map) {
-      var mapElement = this.refs.map;
-      var options = {
+      const mapElement = this.refs.map;
+      const options = {
         touchZoom: false,
         scrollWheelZoom: false
       };
-      var map = Leaflet.map(mapElement, options);
+      const map = Leaflet.map(mapElement, options);
       this.setState({map: map});
     }
 
@@ -42,37 +32,40 @@ var Map = React.createClass({
     } else {
       this._setMap();
     }
-  },
+  }
 
-  componentWillReceiveProps: function (newProps) {
-    this.setState({latitude: newProps.latitude, longitude: newProps.longitude}, function () {
+  componentWillReceiveProps (nextProps) {
+    this.setState({
+      latitude: nextProps.latitude,
+      longitude: nextProps.longitude
+    }, () => {
       if (! this.state.latitude || ! this.state.longitude) {
-        this._getGeocode(newProps);
+        this._getGeocode(nextProps);
       } else {
         this._setMap();
       }
     });
-  },
+  }
 
-  _setMap: function (mapSize) {
-    var map = this.state.map;
+  _setMap (mapSize) {
+    const map = this.state.map;
     map.setView([this.state.latitude, this.state.longitude], mapSize || 14);
     Leaflet.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
-    var circle = Leaflet.circleMarker([this.state.latitude, this.state.longitude], {
+    const circle = Leaflet.circleMarker([this.state.latitude, this.state.longitude], {
       color: '#FF8D6D',
       opacity: 0.8,
       fillOpacity: 0.8
     }).addTo(map);
-    var address = '<h5>' + this.props.title + '</h5>' + this._renderAddress().join('<br/>');
+    const address = '<h5>' + this.props.title + '</h5>' + this._renderAddress().join('<br/>');
     circle.bindPopup(address).openPopup();
-  },
+  }
 
-  _getGeocode: function (props, attempts) {
+  _getGeocode (props, attempts) {
     if (props.country) {
-      var params = {
+      let params = {
         state: props.state,
         country: props.country,
         format: 'json'
@@ -103,7 +96,7 @@ var Map = React.createClass({
       }
 
       // need to change map zoom depending on the number of attempts
-      var mapSize = {
+      const mapSize = {
         1: 14,
         2: 10,
         3: 10,
@@ -114,7 +107,7 @@ var Map = React.createClass({
         .get("http://nominatim.openstreetmap.org/search", params)
         .end(function (err, res) {
           if (! err && res.ok && res.body && res.body[0]) {
-            var place = res.body[0];
+            const place = res.body[0];
             this.setState(
               {latitude: place.lat, longitude: place.lon, busy: false},
               this._setMap.bind(this, mapSize[attempts])
@@ -131,14 +124,15 @@ var Map = React.createClass({
           }
         }.bind(this));
     }
-  },
+  }
 
-  _renderAddress: function () {
-    return [this.props.street, this.props.city, this.props.state, this.props.postalCode, this.props.country];
-  },
+  _renderAddress () {
+    return [this.props.street, this.props.city, this.props.state,
+      this.props.postalCode, this.props.country];
+  }
 
-  render: function() {
-    var address;
+  render () {
+    let address;
     if (! this.state.busy && ! this.state.latitude) {
       address = (
         <Section pad={{horizontal: "medium"}}>
@@ -155,6 +149,15 @@ var Map = React.createClass({
     );
   }
 
-});
+};
 
-module.exports = Map;
+Map.propTypes = {
+  city: PropTypes.string,
+  country: PropTypes.string,
+  latitude: PropTypes.string,
+  longitude: PropTypes.string,
+  postalCode: PropTypes.string,
+  state: PropTypes.string,
+  street: PropTypes.string,
+  title: PropTypes.string
+};

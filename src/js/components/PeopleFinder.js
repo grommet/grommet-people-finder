@@ -1,55 +1,61 @@
-// (C) Copyright 2014-2015 Hewlett Packard Enterprise Development LP
+// (C) Copyright 2014-2016 Hewlett Packard Enterprise Development LP
 
-var React = require('react');
-var ReactIntl = require('react-intl');
-var FormattedMessage = ReactIntl.FormattedMessage;
-var App = require('grommet/components/App');
-var Finder = require('./Finder');
-var DirectoryList = require('./DirectoryList');
-var Person = require('./Person');
-var Group = require('./Group');
-var LocationComponent = require('./Location');
-var config = require('../config');
+import React, { Component } from 'react';
+import { FormattedMessage } from 'react-intl';
+import App from 'grommet/components/App';
+import Finder from './Finder';
+import DirectoryList from './DirectoryList';
+import Person from './Person';
+import Group from './Group';
+import LocationComponent from './Location';
+import config from '../config';
 
 /*
  * The PeopleFinder module controls the browser location and interacts with the
  * back end. It uses the People and Person modules to handle all visualizations.
  */
 
-var PeopleFinder = React.createClass({
+export default class PeopleFinder extends Component {
 
-  getInitialState: function () {
-    var params = this._paramsFromQuery(window.location.search);
-    var searchText = params.search || '';
-    var scope = config.scopes[params.scope || 'people'];
-    var id = params.id || null;
+  constructor () {
+    super();
+    this._onSearchText = this._onSearchText.bind(this);
+    this._onSelect = this._onSelect.bind(this);
+    this._onScope = this._onScope.bind(this);
+    this._onCloseItem = this._onCloseItem.bind(this);
+    this.state = { searchText: '', scope: config.scopes.people, initial: true };
+  }
 
-    return {
+  componentDidMount () {
+    const params = this._paramsFromQuery(window.location.search);
+    const searchText = params.search || '';
+    const scope = config.scopes[params.scope || 'people'];
+    const id = params.id || null;
+
+    this.setState({
       initial: (! searchText),
       scope: scope,
       searchText: searchText,
       id: id
-    };
-  },
+    });
 
-  componentDidMount: function () {
     window.onpopstate = this._popState;
-  },
+  }
 
-  _paramsFromQuery: function (query) {
-    var params = {};
+  _paramsFromQuery (query) {
+    let params = {};
     query.replace(/(^\?)/,'').split('&').forEach(function (p) {
-      var parts = p.split('=');
+      const parts = p.split('=');
       params[parts[0]] = decodeURIComponent(parts[1]);
     });
     return params;
-  },
+  }
 
-  _pushState: function () {
-    var url = window.location.href.split('?')[0] + '?';
+  _pushState () {
+    let url = window.location.href.split('?')[0] + '?';
     url += 'scope=' + encodeURIComponent(this.state.scope.ou);
-    var labelFormatted = this.state.scope.label + " Finder";
-    var label = (
+    const labelFormatted = `${this.state.scope.label} Finder`;
+    let label = (
       <FormattedMessage id={labelFormatted} defaultMessage={labelFormatted} />
     );
     if (this.state.searchText) {
@@ -60,15 +66,15 @@ var PeopleFinder = React.createClass({
       url += '&id=' + encodeURIComponent(this.state.id);
       label = this.state.id;
     }
-    var state = {
+    const state = {
       ou: this.state.scope.ou,
       searchText: this.state.searchText,
       id: this.state.id
     };
     window.history.pushState(state, label, url);
-  },
+  }
 
-  _popState: function (event) {
+  _popState (event) {
     if (event.state) {
       this.setState({
         scope: config.scopes[event.state.ou],
@@ -76,27 +82,27 @@ var PeopleFinder = React.createClass({
         id: event.state.id
       });
     }
-  },
+  }
 
-  _onSearchText: function (text) {
+  _onSearchText (text) {
     this.setState({initial: (! text), searchText: text}, this._pushState);
-  },
+  }
 
-  _onScope: function (scope) {
+  _onScope (scope) {
     this.setState({scope: scope}, this._pushState);
-  },
+  }
 
-  _onSelect: function (item, scopeArg) {
-    var scope = scopeArg || this.state.scope;
+  _onSelect (item, scopeArg) {
+    const scope = scopeArg || this.state.scope;
     this.setState({id: item[scope.id], scope: scope}, this._pushState);
-  },
+  }
 
-  _onCloseItem: function () {
+  _onCloseItem () {
     this.setState({id: null}, this._pushState);
-  },
+  }
 
-  render: function() {
-    var contents;
+  render () {
+    let contents;
 
     if (this.state.id) {
 
@@ -144,6 +150,4 @@ var PeopleFinder = React.createClass({
     );
   }
 
-});
-
-module.exports = PeopleFinder;
+};

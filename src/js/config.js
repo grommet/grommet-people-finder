@@ -11,12 +11,7 @@ module.exports = {
       ou: "people",
       colorIndex: "neutral-1",
       id: "uid",
-      schema: [
-        {attribute: "hpPictureThumbnailURI", image: true, default: "img/no-picture.png"},
-        {attribute: "cn", primary: true},
-        {attribute: "hpBusinessUnit", secondary: true},
-        {attribute: "uid", uid: true}
-      ],
+      attributes: ["hpPictureThumbnailURI", "cn", "hpBusinessUnit", "uid"],
       filterForSearch: function (searchText) {
         // handle "Last, First" syntax
         if (searchText.indexOf(",") !== -1) {
@@ -32,10 +27,7 @@ module.exports = {
       ou: "groups",
       colorIndex: "neutral-2",
       id: "cn",
-      schema: [
-        {attribute: "cn", primary: true, uid: true},
-        {attribute: "description", secondary: true}
-      ],
+      attributes: ["cn", "description"],
       filterForSearch: function (searchText) {
         return "(cn=*" + searchText + "*)";
       }
@@ -46,22 +38,11 @@ module.exports = {
       ou: "locations",
       colorIndex: "neutral-3",
       id: "hpRealEstateID",
-      schema: [
-        {attribute: "buildingName", primary: true},
-        {attribute: "l", secondary: true},
-        {attribute: "hpRealEstateID", uid: true}
-      ],
+      attributes: ["buildingName", "l", "hpRealEstateID"],
       filterForSearch: function (searchText) {
         searchText = searchText.replace(/\s+/g, "*");
         return "(|(buildingName=*" + searchText + "*)(l=*" + searchText + "*))";
       }
     }
-  },
-
-  attributesFromSchema: function (schema) {
-    return schema.map(function (item) {
-      return item.attribute;
-    });
   }
 };
-

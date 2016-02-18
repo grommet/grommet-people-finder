@@ -1,90 +1,72 @@
-// (C) Copyright 2014-2015 Hewlett Packard Enterprise Development LP
+// (C) Copyright 2014-2016 Hewlett Packard Enterprise Development LP
 
-var React = require('react');
-var ReactIntl = require('react-intl');
-var FormattedMessage = ReactIntl.FormattedMessage;
-var Rest = require('grommet/utils/Rest');
-var List = require('grommet/components/List');
-var Spinning = require('grommet/components/icons/Spinning');
-var Right = require('grommet/components/icons/Right');
-var Footer = require('grommet/components/Footer');
-var config = require('../config');
+import React, { Component, PropTypes } from 'react';
+import { FormattedMessage } from 'react-intl';
+import Rest from 'grommet/utils/Rest';
+import List from 'grommet/components/List';
+import Footer from 'grommet/components/Footer';
+import PersonListItem from './PersonListItem';
+import GroupListItem from './GroupListItem';
+import LocationListItem from './LocationListItem';
+import SummaryListItem from './SummaryListItem';
+import BusyListItem from './BusyListItem';
+import config from '../config';
 
-var DirectoryList = React.createClass({
+const SCOPE_LIST_ITEMS = {
+  people: PersonListItem,
+  groups: GroupListItem,
+  locations: LocationListItem
+};
 
-  propTypes: {
-    scope: React.PropTypes.object.isRequired,
-    searchText: React.PropTypes.string,
-    onSelect: React.PropTypes.func.isRequired,
-    onScope: React.PropTypes.func.isRequired
-  },
+export default class DirectoryList extends Component {
 
-  getInitialState: function () {
-    return {
-      changing: false,
-      data: [],
+  constructor () {
+    super();
+    this._onSelect = this._onSelect.bind(this);
+    this._search = this._search.bind(this);
+    this.state = {
+      busy: false,
+      results: [],
       summaries: {}
     };
-  },
+  }
 
-  componentDidMount: function () {
+  componentDidMount () {
     this._queueSearch(this.props.searchText);
-  },
+  }
 
-  componentWillReceiveProps: function (newProps) {
+  componentWillReceiveProps (newProps) {
     if (newProps.scope !== this.props.scope ||
       newProps.searchText !== this.props.searchText) {
       this._queueSearch(newProps.searchText);
     }
-  },
+  }
 
-  componentWillUnmount: function () {
+  componentWillUnmount () {
     clearTimeout(this._searchTimer);
-  },
+  }
 
-  _simulateItem: function (primary, uid, image) {
-    var item = {};
-    this.props.scope.schema.forEach(function (attr) {
-      if (attr.primary) {
-        // TODO: parameterize i18n
-        item[attr.attribute] = primary;
-      } else if (attr.uid) {
-        item[attr.attribute] = uid;
-      } else if (attr.image) {
-        item[attr.attribute] = image;
-      }
-    }.bind(this));
-    return item;
-  },
-
-  _onSearchResponse: function (scope, err, res) {
+  _onSearchResponse (scope, err, res) {
     if (err) {
-      this.setState({data: [], error: err, changing: false});
+      this.setState({results: [], error: err, busy: false});
     } else if (res.ok && this.props.searchText) {
       // don't keep result if we don't have search text anymore
-      var state = {error: null, changing: false, summaries: this.state.summaries};
+      const state = {error: null, busy: false, summaries: this.state.summaries};
       if (scope.ou === this.props.scope.ou) {
-        state.data = res.body;
+        state.results = res.body;
       } else if (res.body.length > 0) {
-        var message = (
-          <FormattedMessage id={scope.label + ' matching'}
-            defaultMessage={scope.label + ' matching'}
-            values={{search: this.props.searchText}} />
-        );
-        var item = this._simulateItem(message, scope.ou, <Right />);
-        item._scope = scope;
         state.summaries[scope.ou] = {
           scope: scope,
-          item: item
+          searchText: this.props.searchText
         };
       }
       this.setState(state);
     }
-  },
+  }
 
-  _search: function () {
-    var searchText = this.props.searchText;
-    var filter;
+  _search () {
+    const searchText = this.props.searchText;
+    let filter;
     if (searchText[0] === '(') {
       // assume this is already a formal LDAP filter
       filter = encodeURIComponent(searchText);
@@ -92,12 +74,12 @@ var DirectoryList = React.createClass({
       filter = encodeURIComponent(this.props.scope.filterForSearch(searchText));
     }
 
-    var params = {
+    const params = {
       url: encodeURIComponent(config.ldap_base_url),
-      base: encodeURIComponent('ou=' + this.props.scope.ou + ',o=' + config.organization),
+      base: encodeURIComponent(`ou=${this.props.scope.ou},o=${config.organization}`),
       scope: 'sub',
       filter: filter,
-      attributes: config.attributesFromSchema(this.props.scope.schema)
+      attributes: this.props.scope.attributes
     };
     Rest.get('/ldap/', params).end(function (err, res) {
       this._onSearchResponse(this.props.scope, err, res);
@@ -108,62 +90,70 @@ var DirectoryList = React.createClass({
       Object.keys(config.scopes).map(function (key) {
         var scope = config.scopes[key];
         if (scope.ou !== this.props.scope.ou) {
-          params.base = encodeURIComponent('ou=' + scope.ou + ',o=' + config.organization);
+          params.base = encodeURIComponent(`ou=${scope.ou},o=${config.organization}`);
           params.filter = encodeURIComponent(scope.filterForSearch(searchText));
-          params.attributes = config.attributesFromSchema(scope.schema);
+          params.attributes = scope.attributes;
           Rest.get('/ldap/', params).end(function (err, res) {
             this._onSearchResponse(scope, err, res);
           }.bind(this));
         }
       }.bind(this));
     }.bind(this), 200);
-  },
+  }
 
-  _queueSearch: function (searchText) {
+  _queueSearch (searchText) {
     clearTimeout(this._searchTimer);
     if (! searchText) {
-      this.setState({data: [], summaries: {}, changing: false});
+      this.setState({results: [], summaries: {}, busy: false});
     } else {
-      this.setState({summaries: {}, changing: true});
+      this.setState({summaries: {}, busy: true});
       // debounce
       this._searchTimer = setTimeout(this._search, 500);
     }
-  },
+  }
 
-  _onSelect: function (item) {
-    if (item._scope) {
-      this.props.onScope(item._scope);
-    } else {
-      this.props.onSelect(item);
-    }
-  },
+  _onSelect (item) {
+    this.props.onSelect(item);
+  }
 
-  render: function() {
-    var schema = this.props.scope.schema;
-    var data = this.state.data;
-    var empty;
-    if (this.state.changing) {
-      var busy = {uid: 'spinner'};
-      busy[schema[0].attribute] = <Spinning />;
-      data = [busy];
-    } else if (this.props.searchText && this.state.data.length === 0) {
-      var noMatchingLabel = 'No matching ' + this.props.scope.label.toLowerCase();
+  _onSelectScope (scope) {
+    this.props.onScope(scope);
+  }
+
+  render () {
+    const { searchText, scope } = this.props;
+    const { results, busy } = this.state;
+    let items, empty, first = false;
+    if (busy) {
+      items = <BusyListItem />;
+    } else if (searchText && results.length === 0) {
+      const noMatchingLabel = `No matching ${scope.label.toLowerCase()}`;
       empty = (
         <FormattedMessage id={noMatchingLabel} defaultMessage={noMatchingLabel} />
       );
-      data = [];
+      first = true;
+    } else {
+      const ListItem = SCOPE_LIST_ITEMS[scope.ou];
+      items = results.map(item => (
+        <ListItem key={item.dn} item={item}
+          onClick={this._onSelect.bind(this, item)} />
+      ));
     }
 
-    Object.keys(config.scopes).map(function (key) {
-      if (this.state.summaries[key]) {
-        var summary = this.state.summaries[key];
-        data = data.concat([summary.item]);
-      }
-    }.bind(this));
+    const summaryItems = Object.keys(this.state.summaries).map(key => {
+      const summary = this.state.summaries[key];
+      const item = (
+        <SummaryListItem key={key} scope={summary.scope} first={first}
+          searchText={summary.searchText}
+          onClick={this._onSelectScope.bind(this, summary.scope)} />
+      );
+      first = false;
+      return item;
+    });
 
-    var more;
-    if (data.length >= 20) {
-      var moreLabel = 'Refine search to find more';
+    let more;
+    if (results.length >= 20 && ! busy) {
+      const moreLabel = 'Refine search to find more';
       more = (
         <Footer pad="medium">
           <FormattedMessage id={moreLabel} defaultMessage={moreLabel} />
@@ -173,13 +163,20 @@ var DirectoryList = React.createClass({
 
     return (
       <div>
-        <List key="results" large={true} data={data} emptyIndicator={empty}
-          schema={schema} onSelect={this._onSelect} />
+        <List key="results" emptyIndicator={empty}>
+          {items}
+          {summaryItems}
+        </List>
         {more}
       </div>
     );
   }
 
-});
+};
 
-module.exports = DirectoryList;
+DirectoryList.propTypes = {
+  scope: PropTypes.object.isRequired,
+  searchText: PropTypes.string,
+  onSelect: PropTypes.func.isRequired,
+  onScope: PropTypes.func.isRequired
+};

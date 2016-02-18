@@ -1,87 +1,90 @@
-// (C) Copyright 2014-2015 Hewlett Packard Enterprise Development LP
+// (C) Copyright 2014-2016 Hewlett Packard Enterprise Development LP
 
-var React = require('react');
-var ReactIntl = require('react-intl');
-var FormattedMessage = ReactIntl.FormattedMessage;
-var Rest = require('grommet/utils/Rest');
-var Split = require('grommet/components/Split');
-var Box = require('grommet/components/Box');
-var Header = require('grommet/components/Header');
-var Title = require('grommet/components/Title');
-var Article = require('grommet/components/Article');
-var Section = require('grommet/components/Section');
-var Sidebar = require('grommet/components/Sidebar');
-var Menu = require('grommet/components/Menu');
-var SearchIcon = require('grommet/components/icons/base/Search');
-var EditIcon = require('grommet/components/icons/base/Edit');
-var Logo = require('./Logo');
-var Map = require('./Map');
-var Details = require('./Details');
-var PersonGroups = require('./PersonGroups');
-var Organization = require('./Organization');
-var config = require('../config');
+import React, { Component, PropTypes } from 'react';
+import { FormattedMessage } from 'react-intl';
+import Rest from 'grommet/utils/Rest';
+import Split from 'grommet/components/Split';
+import Box from 'grommet/components/Box';
+import Header from 'grommet/components/Header';
+import Title from 'grommet/components/Title';
+import Article from 'grommet/components/Article';
+import Section from 'grommet/components/Section';
+import Sidebar from 'grommet/components/Sidebar';
+import Menu from 'grommet/components/Menu';
+import Anchor from 'grommet/components/Anchor';
+import SearchIcon from 'grommet/components/icons/base/Search';
+import EditIcon from 'grommet/components/icons/base/Edit';
+import Logo from './Logo';
+import Map from './Map';
+import Details from './Details';
+import PersonGroups from './PersonGroups';
+import Organization from './Organization';
+import config from '../config';
 
-var Person = React.createClass({
+export default class Person extends Component {
 
-  propTypes: {
-    id: React.PropTypes.string.isRequired,
-    onClose: React.PropTypes.func.isRequired,
-    onSelect: React.PropTypes.func.isRequired
-  },
+  constructor () {
+    super();
+    this._onPersonResponse = this._onPersonResponse.bind(this);
+    this._onDetails = this._onDetails.bind(this);
+    this._onGroups = this._onGroups.bind(this);
+    this._onOrganization = this._onOrganization.bind(this);
+    this.state = {
+      view: 'organization',
+      person: {},
+      scope: config.scopes.people
+    };
+  }
 
-  getInitialState: function () {
-    return {view: 'organization', person: {}, scope: config.scopes.people};
-  },
-
-  componentDidMount: function () {
+  componentDidMount () {
     this._getPerson(this.props.id);
-  },
+  }
 
-  componentWillReceiveProps: function (newProps) {
-    if (newProps.id !== this.props.id) {
-      this._getPerson(newProps.id);
+  componentWillReceiveProps (nextProps) {
+    if (nextProps.id !== this.props.id) {
+      this._getPerson(nextProps.id);
     }
-  },
+  }
 
-  _onPersonResponse: function (err, res) {
+  _onPersonResponse (err, res) {
     if (err) {
       this.setState({person: {}, error: err});
     } else if (res.ok) {
       var result = res.body;
       this.setState({person: result[0], error: null});
     }
-  },
+  }
 
-  _getPerson: function (id) {
-    var params = {
+  _getPerson (id) {
+    const params = {
       url: encodeURIComponent(config.ldap_base_url),
       base: encodeURIComponent('ou=' + this.state.scope.ou + ',o=' + config.organization),
       scope: 'sub',
       filter: '(uid=' + id + ')'
     };
     Rest.get('/ldap/', params).end(this._onPersonResponse);
-  },
+  }
 
-  _onDetails: function () {
+  _onDetails () {
     this.setState({view: 'details'});
-  },
+  }
 
-  _onGroups: function () {
+  _onGroups () {
     this.setState({view: 'groups'});
-  },
+  }
 
-  _onOrganization: function () {
+  _onOrganization () {
     this.setState({view: 'organization'});
-  },
+  }
 
-  render: function() {
-    var appTitle = (
+  render () {
+    const appTitle = (
       <FormattedMessage id="People Finder" defaultMessage="People Finder" />
     );
-    var person = this.state.person;
+    const person = this.state.person;
 
-    var view;
-    var viewLabel;
+    let view;
+    let viewLabel;
     if ('details' === this.state.view) {
       view = <Details person={person}/>;
       viewLabel = 'Details';
@@ -93,7 +96,7 @@ var Person = React.createClass({
       viewLabel = 'Organization';
     }
 
-    var personTitle;
+    let personTitle;
     if (person.title) {
       personTitle = person.title.replace(/&amp;/g, '&');
     }
@@ -135,9 +138,9 @@ var Person = React.createClass({
           <Header large={true} pad={{horizontal: "medium"}} justify="between" separator="bottom">
             <h3>{viewLabel}</h3>
             <Menu inline={false} dropAlign={{right: 'right'}}>
-              <a onClick={this._onOrganization}>Organization</a>
-              <a onClick={this._onDetails}>Details</a>
-              <a onClick={this._onGroups}>Groups</a>
+              <Anchor onClick={this._onOrganization}>Organization</Anchor>
+              <Anchor onClick={this._onDetails}>Details</Anchor>
+              <Anchor onClick={this._onGroups}>Groups</Anchor>
             </Menu>
           </Header>
           {view}
@@ -146,6 +149,10 @@ var Person = React.createClass({
     );
   }
 
-});
+};
 
-module.exports = Person;
+Person.propTypes = {
+  id: PropTypes.string.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onSelect: PropTypes.func.isRequired
+};

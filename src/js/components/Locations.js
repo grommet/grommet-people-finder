@@ -1,61 +1,49 @@
-// (C) Copyright 2014-2015 Hewlett Packard Enterprise Development LP
+// (C) Copyright 2014-2016 Hewlett Packard Enterprise Development LP
 
-var React = require('react');
-var DirectoryList = require('./DirectoryList');
+import React, { Component, PropTypes } from 'react';
+import DirectoryList from './DirectoryList';
 
-var LDAP_BASE = {
-  url: encodeURIComponent('ldap://ldap.hp.com'),
-  base: encodeURIComponent('ou=locations,o=hp.com'),
-  scope: 'sub'
-};
+export default class Locations extends Component {
 
-var SCHEMA = [
-  {attribute: 'buildingName', primary: true},
-  {attribute: 'l', secondary: true},
-  {attribute: 'hpRealEstateID', uid: true}
-];
+  constructor (props) {
+    super(props);
+    this.state = {
+      filter: this._filterForSearch(props.searchText)
+    };
+  }
 
-var Locations = React.createClass({
-
-  propTypes: {
-    searchText: React.PropTypes.string,
-    onSelect: React.PropTypes.func.isRequired
-  },
-
-  getInitialState: function () {
-    var filter = this._filterForSearch(this.props.searchText);
-    return {filter: filter};
-  },
-
-  componentWillReceiveProps: function (newProps) {
-    if (newProps.searchText !== this.props.searchText) {
-      var filter = this._filterForSearch(newProps.searchText);
+  componentWillReceiveProps (nextProps) {
+    if (nextProps.searchText !== this.props.searchText) {
+      const filter = this._filterForSearch(nextProps.searchText);
       this.setState({filter: filter});
     }
-  },
+  }
 
-  _filterForSearch: function (searchText) {
-    var filter;
+  _filterForSearch (searchText) {
+    let filter;
     if (searchText) {
       if (searchText[0] === '(') {
         // assume this is already a formal LDAP filter
         filter = encodeURIComponent(searchText);
       } else {
         searchText = searchText.replace(/\s+/g, '*');
-        filter = encodeURIComponent('(|(buildingName=*' + searchText + '*)' +
-          '(l=*' + searchText + '*))');
+        filter = encodeURIComponent(
+          `(|(buildingName=*${searchText}*)(l=*${searchText}*))`);
       }
     }
     return filter;
-  },
+  }
 
-  render: function() {
+  render () {
     return (
-      <DirectoryList base={LDAP_BASE} schema={SCHEMA}
+      <DirectoryList
         filter={this.state.filter} onSelect={this.props.onSelect} />
     );
   }
 
-});
+};
 
-module.exports = Locations;
+Locations.propTypes = {
+  searchText: PropTypes.string,
+  onSelect: PropTypes.func.isRequired
+};

@@ -1,56 +1,43 @@
-// (C) Copyright 2014-2015 Hewlett Packard Enterprise Development LP
+// (C) Copyright 2014-2016 Hewlett Packard Enterprise Development LP
 
-var React = require('react');
-var ReactIntl = require('react-intl');
-var FormattedMessage = ReactIntl.FormattedMessage;
-var Header = require('grommet/components/Header');
-var Menu = require('grommet/components/Menu');
-var Anchor = require('grommet/components/Anchor');
-var Footer = require('grommet/components/Footer');
-var Title = require('grommet/components/Title');
-var Search = require('grommet/components/Search');
-var Section = require('grommet/components/Section');
-var Paragraph = require('grommet/components/Paragraph');
-var Box = require('grommet/components/Box');
-var Logo = require('./Logo');
-var config = require('../config');
+import React, { Component, PropTypes } from 'react';
+import { FormattedMessage } from 'react-intl';
+import Header from 'grommet/components/Header';
+import Menu from 'grommet/components/Menu';
+import Anchor from 'grommet/components/Anchor';
+import Footer from 'grommet/components/Footer';
+import Title from 'grommet/components/Title';
+import Search from 'grommet/components/Search';
+import Section from 'grommet/components/Section';
+import Paragraph from 'grommet/components/Paragraph';
+import Box from 'grommet/components/Box';
+import Logo from './Logo';
+import config from '../config';
 
-var Finder = React.createClass({
+export default class Finder extends Component {
 
-  propTypes: {
-    initial: React.PropTypes.bool.isRequired,
-    onScope: React.PropTypes.func.isRequired,
-    onSearch: React.PropTypes.func.isRequired,
-    scope: React.PropTypes.object.isRequired,
-    searchText: React.PropTypes.string.isRequired
-  },
-
-  contextTypes: {
-    intl: React.PropTypes.object.isRequired
-  },
-
-  componentDidMount: function () {
+  componentDidMount () {
     this.refs.search.focus();
-  },
+  }
 
-  componentDidUpdate: function () {
+  componentDidUpdate () {
     this.refs.search.focus();
-  },
+  }
 
-  _onScope: function (scope) {
+  _onScope (scope) {
     this.props.onScope(scope);
-  },
+  }
 
-  render: function() {
+  render () {
 
-    var titleLabel = this.props.scope.label + " Finder";
-    var title = (
+    const titleLabel = `${this.props.scope.label} Finder`;
+    const title = (
       <FormattedMessage id={titleLabel} defaultMessage={titleLabel} />
     );
 
-    var texture;
-    var colorIndex = this.props.scope.colorIndex;
-    var footer;
+    let texture;
+    let colorIndex = this.props.scope.colorIndex;
+    let footer;
 
     if (this.props.initial) {
       texture = "url(img/people-finder-background.jpg)";
@@ -60,20 +47,21 @@ var Finder = React.createClass({
           pad={{vertical: "small", horizontal: "medium"}}>
           <img src="img/hpesm_pri_grn_rev_rgb.svg" alt="logo" className="logo" />
           <Box className="flex" align="end">
-            <Paragraph size="small">© Copyright 2015 Hewlett Packard Enterprise Development LP</Paragraph>
+            <Paragraph size="small">© Copyright
+              2015 Hewlett Packard Enterprise Development LP</Paragraph>
           </Box>
         </Footer>
       );
     }
 
-    var scopeAnchors = Object.keys(config.scopes).map(function (key) {
-      var scope = config.scopes[key];
+    var scopeAnchors = Object.keys(config.scopes).map(key => {
+      const scope = config.scopes[key];
       return (
         <Anchor key={key} onClick={this._onScope.bind(this, scope)}>
           <FormattedMessage id={scope.label} defaultMessage={scope.label} />
         </Anchor>
       );
-    }.bind(this));
+    });
 
     return (
       <Section texture={texture} full={true} pad="none">
@@ -98,6 +86,16 @@ var Finder = React.createClass({
     );
   }
 
-});
+};
 
-module.exports = Finder;
+Finder.propTypes = {
+  initial: PropTypes.bool.isRequired,
+  onScope: PropTypes.func.isRequired,
+  onSearch: PropTypes.func.isRequired,
+  scope: PropTypes.object.isRequired,
+  searchText: PropTypes.string.isRequired
+};
+
+Finder.contextTypes = {
+  intl: PropTypes.object.isRequired
+};

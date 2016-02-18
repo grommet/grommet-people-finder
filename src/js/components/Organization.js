@@ -1,43 +1,43 @@
-// (C) Copyright 2014-2015 Hewlett Packard Enterprise Development LP
+// (C) Copyright 2014-2016 Hewlett Packard Enterprise Development LP
 
-var React = require('react');
-var Article = require('grommet/components/Article');
-var List = require('grommet/components/List');
-var Header = require('grommet/components/Header');
-var Rest = require('grommet/utils/Rest');
-var Spinning = require('grommet/components/icons/Spinning');
-var config = require('../config');
+import React, { Component, PropTypes } from 'react';
+import Article from 'grommet/components/Article';
+import List from 'grommet/components/List';
+import Header from 'grommet/components/Header';
+import Rest from 'grommet/utils/Rest';
+import PersonListItem from './PersonListItem';
+import BusyListItem from './BusyListItem';
+import config from '../config';
 
-var Organization = React.createClass({
+export default class Organization extends Component {
 
-  propTypes: {
-    onSelect: React.PropTypes.func.isRequired,
-    person: React.PropTypes.object.isRequired
-  },
+  constructor () {
+    super();
+    this._onTeamResponse = this._onTeamResponse.bind(this);
+    this._onManagerResponse = this._onManagerResponse.bind(this);
+    this._onSelect = this._onSelect.bind(this);
+    this.state = {team: [], managers: [], scope: config.scopes.people};
+  }
 
-  getInitialState: function () {
-    return {team: [], managers: [], scope: config.scopes.people};
-  },
-
-  componentDidMount: function () {
+  componentDidMount () {
     this._getRelatedDetails(this.props);
-  },
+  }
 
-  componentWillReceiveProps: function (newProps) {
-    if (newProps.person.dn !== this.props.person.dn) {
-      this._getRelatedDetails(newProps);
+  componentWillReceiveProps (nextProps) {
+    if (nextProps.person.dn !== this.props.person.dn) {
+      this._getRelatedDetails(nextProps);
     }
-  },
+  }
 
-  _onManagerResponse: function (err, res) {
+  _onManagerResponse (err, res) {
     if (err) {
       this.setState({staff: [], error: err});
     } else if (res.ok) {
-      var result = res.body;
-      var manager = result[0];
+      const result = res.body;
+      const manager = result[0];
       // might not match if domain names are different
       if (manager) {
-        var managers = this.state.managers;
+        const managers = this.state.managers;
         managers.unshift(manager);
         this.setState({managers: managers, error: null});
         // 20 limit is to guard against bugs in the code
@@ -51,24 +51,24 @@ var Organization = React.createClass({
         this.setState({busy: false});
       }
     }
-  },
+  }
 
-  _getManager: function (managerDn) {
-    var params = {
+  _getManager (managerDn) {
+    const params = {
       url: encodeURIComponent(config.ldap_base_url),
       base: managerDn,
       scope: 'sub'
     };
     Rest.get('/ldap/', params).end(this._onManagerResponse);
-  },
+  }
 
-  _onTeamResponse: function (err, res) {
+  _onTeamResponse (err, res) {
     if (err) {
       this.setState({staff: [], error: err});
     } else if (res.ok) {
-      var result = res.body.sort(function (p1, p2) {
-        var n1 = p1.cn.toLowerCase();
-        var n2 = p2.cn.toLowerCase();
+      const result = res.body.sort(function (p1, p2) {
+        const n1 = p1.cn.toLowerCase();
+        const n2 = p2.cn.toLowerCase();
         if (n1 > n2) {
           return 1;
         }
@@ -79,56 +79,71 @@ var Organization = React.createClass({
       });
       this.setState({team: result, error: null});
     }
-  },
+  }
 
-  _getRelatedDetails: function (props) {
+  _getRelatedDetails (props) {
     this.setState({team: [], managers: []});
     if (props.person.dn) {
       this.setState({busy: true});
 
-      var params = {
+      const params = {
         url: encodeURIComponent(config.ldap_base_url),
-        base: encodeURIComponent('ou=' + this.state.scope.ou + ',o=' + config.organization),
+        base: encodeURIComponent(`ou=${this.state.scope.ou},o=${config.organization}`),
         scope: 'sub',
-        filter: encodeURIComponent('(&(hpStatus=Active)(manager=' + props.person.dn + '))'),
-        attributes: config.attributesFromSchema(this.state.scope.schema)
+        filter: encodeURIComponent(`(&(hpStatus=Active)(manager=${props.person.dn}))`),
+        attributes: this.state.scope.attributes
       };
       Rest.get('/ldap/', params).end(this._onTeamResponse);
 
       this._getManager(props.person.manager);
     }
-  },
+  }
 
-  render: function() {
-    var person = this.props.person;
-    var people = [];
+  _onSelect (item) {
+    this.props.onSelect(item);
+  }
+
+  render () {
+    const person = this.props.person;
+    let people;
     if (person.uid) {
       if (this.state.busy) {
-        people = [{uid: 'spinner', hpPictureThumbnailURI: <Spinning />}, person];
+        people = [<BusyListItem key="busy" />];
       } else {
-        people = this.state.managers.concat(person);
+        people = this.state.managers.map(item => (
+          <PersonListItem key={item.uid} item={item}
+            onClick={this._onSelect.bind(this, item)} />
+        ));
       }
+      people.push(<PersonListItem key={person.uid} item={person} />);
     }
-    var team;
+    let team;
     if (this.state.team.length > 0) {
+      const members = this.state.team.map((item, index) => (
+        <PersonListItem key={item.uid} item={item} first={index === 0}
+          onClick={this._onSelect.bind(this, item)} />
+      ));
       team = [
-        <Header key="label" tag="h4" pad="medium" separator="top">
-          {person.givenName + "'s Team"}
+        <Header key="label" pad="medium">
+          <h4>{`${person.givenName}'s Team`}</h4>
         </Header>,
-        <List key="team" large={true} data={this.state.team} schema={this.state.scope.schema}
-          onSelect={this.props.onSelect} />
+        <List key="team">{members}</List>
       ];
     }
 
     return (
       <Article>
-        <List large={true} data={people} schema={this.state.scope.schema}
-          onSelect={this.props.onSelect} />
+        <List>
+          {people}
+        </List>
         {team}
       </Article>
     );
   }
 
-});
+};
 
-module.exports = Organization;
+Organization.propTypes = {
+  onSelect: PropTypes.func.isRequired,
+  person: PropTypes.object.isRequired
+};

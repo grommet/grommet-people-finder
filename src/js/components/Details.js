@@ -1,31 +1,27 @@
-// (C) Copyright 2014-2015 Hewlett Packard Enterprise Development LP
+// (C) Copyright 2014-2016 Hewlett Packard Enterprise Development LP
 
-var React = require('react');
-var Article = require('grommet/components/Article');
-var Section = require('grommet/components/Section');
-var Header = require('grommet/components/Header');
-var Attribute = require('grommet/components/Attribute');
+import React, { Component, PropTypes } from 'react';
+import Article from 'grommet/components/Article';
+import Section from 'grommet/components/Section';
+import Heading from 'grommet/components/Heading';
+import Attribute from 'grommet/components/Attribute';
 
-var Details = React.createClass({
+export default class Details extends Component {
 
-  propTypes: {
-    person: React.PropTypes.object.isRequired
-  },
-
-  _renderAttribute: function (label, value) {
-    var result;
+  _renderAttribute (label, value) {
+    let result;
     if (value) {
       result = <Attribute label={label}>{value}</Attribute>;
     }
     return result;
-  },
+  }
 
-  render: function() {
-    var person = this.props.person;
+  render () {
+    const { person } = this.props;
     return (
       <Article pad={{horizontal: 'medium'}}>
         <Section>
-          <Header tag="h4">Employment</Header>
+          <Heading tag="h3">Employment</Heading>
           {this._renderAttribute("Status", person.hpStatus)}
           {this._renderAttribute("Job Function", person.hpJobFunction)}
           {this._renderAttribute("Job Family", person.hpJobFamily)}
@@ -34,14 +30,14 @@ var Details = React.createClass({
           {this._renderAttribute("NT User ID", person.ntUserDomainId)}
         </Section>
         <Section>
-          <Header tag="h4" separator="top">Site</Header>
+          <Heading tag="h3" separator="top">Site</Heading>
           {this._renderAttribute("Building", person.buildingName)}
           {this._renderAttribute("Floor", person.hpFloor)}
           {this._renderAttribute("Post", person.hpPost)}
           {this._renderAttribute("Mailstop", person.mailStop)}
         </Section>
         <Section>
-          <Header tag="h4" separator="top">Administration</Header>
+          <Heading tag="h3" separator="top">Administration</Heading>
           {this._renderAttribute("Location Code", person.hpLocationCode)}
           {this._renderAttribute("Lighthouse Cost Center", person.hpLHCostCenter)}
           {this._renderAttribute("MRU Code", person.hpMRUCode)}
@@ -51,6 +47,8 @@ var Details = React.createClass({
     );
   }
 
-});
+};
 
-module.exports = Details;
+Details.propTypes = {
+  person: PropTypes.object.isRequired
+};

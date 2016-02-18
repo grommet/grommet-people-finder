@@ -1,39 +1,38 @@
-// (C) Copyright 2014-2015 Hewlett Packard Enterprise Development LP
+// (C) Copyright 2014-2016 Hewlett Packard Enterprise Development LP
 
-var React = require('react');
-var Rest = require('grommet/utils/Rest');
-var List = require('grommet/components/List');
-var Spinning = require('grommet/components/icons/Spinning');
-var config = require('../config');
+import React, { Component, PropTypes } from 'react';
+import Rest from 'grommet/utils/Rest';
+import List from 'grommet/components/List';
+import GroupListItem from './GroupListItem';
+import BusyListItem from './BusyListItem';
+import config from '../config';
 
-var PersonGroups = React.createClass({
+export default class PersonGroups extends Component {
 
-  propTypes: {
-    onSelect: React.PropTypes.func.isRequired,
-    person: React.PropTypes.object.isRequired
-  },
+  constructor () {
+    super();
+    this._onGroupsResponse = this._onGroupsResponse.bind(this);
+    this._onSelect = this._onSelect.bind(this);
+    this.state = {groups: [], scope: config.scopes.groups};
+  }
 
-  getInitialState: function () {
-    return {groups: [], scope: config.scopes.groups};
-  },
-
-  componentDidMount: function () {
+  componentDidMount () {
     this._getGroups(this.props);
-  },
+  }
 
-  componentWillReceiveProps: function (newProps) {
-    if (newProps.person.dn !== this.props.person.dn) {
-      this._getGroups(newProps);
+  componentWillReceiveProps (nextProps) {
+    if (nextProps.person.dn !== this.props.person.dn) {
+      this._getGroups(nextProps);
     }
-  },
+  }
 
-  _onGroupsResponse: function (err, res) {
+  _onGroupsResponse (err, res) {
     if (err) {
-      this.setState({groups: [], error: err, changing: false});
+      this.setState({groups: [], error: err, busy: false});
     } else if (res.ok) {
-      var result = res.body.sort(function (g1, g2) {
-        var n1 = g1.cn.toLowerCase();
-        var n2 = g2.cn.toLowerCase();
+      const result = res.body.sort(function (g1, g2) {
+        const n1 = g1.cn.toLowerCase();
+        const n2 = g2.cn.toLowerCase();
         if (n1 > n2) {
           return 1;
         }
@@ -42,42 +41,52 @@ var PersonGroups = React.createClass({
         }
         return 0;
       });
-      this.setState({groups: result, error: null, changing: false});
+      this.setState({groups: result, error: null, busy: false});
     }
-  },
+  }
 
-  _getGroups: function (props) {
-    this.setState({groups: [], changing: true});
+  _getGroups (props) {
+    this.setState({groups: [], busy: true});
     if (props.person.dn) {
       this.setState({busy: true});
-      var filter = '(&(objectClass=groupOfNames)(member=' + props.person.dn + '))';
-      var params = {
+      const filter = `(&(objectClass=groupOfNames)(member=${props.person.dn}))`;
+      const params = {
         url: encodeURIComponent(config.ldap_base_url),
-        base: encodeURIComponent('ou=' + this.state.scope.ou + ',o=' + config.organization),
+        base: encodeURIComponent(`ou=${this.state.scope.ou},o=${config.organization}`),
         scope: 'sub',
         filter: encodeURIComponent(filter),
-        attributes: config.attributesFromSchema(this.state.scope.schema)
+        attributes: this.state.scope.attributes
       };
       Rest.get('/ldap/', params).end(this._onGroupsResponse);
     }
-  },
+  }
 
-  _onSelectGroup: function (group) {
+  _onSelect (group) {
     this.props.onSelect(group, this.state.scope);
-  },
+  }
 
-  render: function() {
-    var groups = this.state.groups;
-    if (this.state.changing) {
-      groups = [{cn: <Spinning />}];
+  render () {
+    const { groups, busy } = this.state;
+    let items;
+    if (busy) {
+      items = <BusyListItem />;
+    } else {
+      items = groups.map(item => (
+        <GroupListItem key={item.uid} item={item} direction="column"
+          onClick={this._onSelect.bind(this, item)} />
+      ));
     }
 
     return (
-      <List large={true} data={groups} schema={this.state.scope.schema}
-        itemDirection="column" onSelect={this._onSelectGroup} />
+      <List>
+        {items}
+      </List>
     );
   }
 
-});
+};
 
-module.exports = PersonGroups;
+PersonGroups.propTypes = {
+  onSelect: PropTypes.func.isRequired,
+  person: PropTypes.object.isRequired
+};

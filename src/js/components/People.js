@@ -1,42 +1,26 @@
-// (C) Copyright 2014-2015 Hewlett Packard Enterprise Development LP
+// (C) Copyright 2014-2016 Hewlett Packard Enterprise Development LP
 
-var React = require('react');
-var DirectoryList = require('./DirectoryList');
+import React, { Component, PropTypes } from 'react';
+import DirectoryList from './DirectoryList';
 
-var LDAP_BASE = {
-  url: encodeURIComponent('ldap://ldap.hp.com'),
-  base: encodeURIComponent('ou=people,o=hp.com'),
-  scope: 'sub'
-};
+export default class People extends Component {
 
-var SCHEMA = [
-  {attribute: 'hpPictureThumbnailURI', image: true, default: 'img/no-picture.png'},
-  {attribute: 'cn', primary: true},
-  {attribute: 'hpBusinessUnit', secondary: true},
-  {attribute: 'uid', uid: true}
-];
+  constructor (props) {
+    super(props);
+    this.state = {
+      filter: this._filterForSearch(props.searchText)
+    };
+  }
 
-var People = React.createClass({
-
-  propTypes: {
-    searchText: React.PropTypes.string,
-    onSelect: React.PropTypes.func.isRequired
-  },
-
-  getInitialState: function () {
-    var filter = this._filterForSearch(this.props.searchText);
-    return {filter: filter};
-  },
-
-  componentWillReceiveProps: function (newProps) {
-    if (newProps.searchText !== this.props.searchText) {
-      var filter = this._filterForSearch(newProps.searchText);
+  componentWillReceiveProps (nextProps) {
+    if (nextProps.searchText !== this.props.searchText) {
+      var filter = this._filterForSearch(nextProps.searchText);
       this.setState({filter: filter});
     }
-  },
+  }
 
-  _filterForSearch: function (searchText) {
-    var filter;
+  _filterForSearch (searchText) {
+    let filter;
     if (searchText) {
       if (searchText[0] === '(') {
         // assume this is already a formal LDAP filter
@@ -47,20 +31,23 @@ var People = React.createClass({
           searchText = searchText.replace(/(.+),\s*(.+)/, "$2 $1");
         }
         // only return Active employees
-        filter = encodeURIComponent('(&(hpStatus=Active)' +
-          '(|(cn=*' + searchText + '*)(uid=*' + searchText + '*)))');
+        filter = encodeURIComponent(
+          `(&(hpStatus=Active)(|(cn=*${searchText}*)(uid=*${searchText}*)))`);
       }
     }
     return filter;
-  },
+  }
 
-  render: function() {
+  render () {
     return (
-      <DirectoryList base={LDAP_BASE} schema={SCHEMA}
+      <DirectoryList
         filter={this.state.filter} onSelect={this.props.onSelect} />
     );
   }
 
-});
+};
 
-module.exports = People;
+People.propTypes = {
+  searchText: PropTypes.string,
+  onSelect: PropTypes.func.isRequired
+};

@@ -1,19 +1,15 @@
-// (C) Copyright 2014-2015 Hewlett Packard Enterprise Development LP
+// (C) Copyright 2014-2016 Hewlett Packard Enterprise Development LP
 
-var React = require('react');
+import React, { Component, PropTypes } from 'react';
 
-var Logo = React.createClass({
+export default class Logo extends Component {
 
-  propTypes: {
-    reverse: React.PropTypes.bool
-  },
-
-  render: function() {
-    var className = 'logo-icon';
+  render () {
+    let className = 'logo-icon';
     if (this.props.className) {
       className += ' ' + this.props.className;
     }
-    var stroke = '#00B388';
+    let stroke = '#00B388';
     if (this.props.reverse) {
       stroke = '#ffffff';
     }
@@ -43,6 +39,8 @@ var Logo = React.createClass({
     );
   }
 
-});
+};
 
-module.exports = Logo;
+Logo.propTypes = {
+  reverse: PropTypes.bool
+};

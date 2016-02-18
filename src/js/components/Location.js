@@ -1,68 +1,63 @@
-// (C) Copyright 2014-2015 Hewlett Packard Enterprise Development LP
+// (C) Copyright 2014-2016 Hewlett Packard Enterprise Development LP
 
-var React = require('react');
-var ReactIntl = require('react-intl');
-var FormattedMessage = ReactIntl.FormattedMessage;
-var Rest = require('grommet/utils/Rest');
-var Header = require('grommet/components/Header');
-var Title = require('grommet/components/Title');
-var Article = require('grommet/components/Article');
-var Section = require('grommet/components/Section');
-var SearchIcon = require('grommet/components/icons/Search');
-var Logo = require('./Logo');
-var Map = require('./Map');
-var config = require('../config');
+import React, { Component, PropTypes } from 'react';
+import { FormattedMessage } from 'react-intl';
+import Rest from 'grommet/utils/Rest';
+import Header from 'grommet/components/Header';
+import Title from 'grommet/components/Title';
+import Article from 'grommet/components/Article';
+import Section from 'grommet/components/Section';
+import Button from 'grommet/components/Button';
+import Logo from './Logo';
+import Map from './Map';
+import config from '../config';
 
-var LocationComponent = React.createClass({
+export default class LocationComponent extends Component {
 
-  propTypes: {
-    id: React.PropTypes.string.isRequired,
-    onClose: React.PropTypes.func.isRequired
-  },
+  constructor () {
+    super();
+    this._onLocationResponse = this._onLocationResponse.bind(this);
+    this.state = {location: {}, scope: config.scopes.locations};
+  }
 
-  getInitialState: function () {
-    return {location: {}, scope: config.scopes.locations};
-  },
-
-  componentDidMount: function () {
+  componentDidMount () {
     this._getLocation(this.props.id);
-  },
+  }
 
-  componentWillReceiveProps: function (newProps) {
-    if (newProps.id !== this.props.id) {
-      this._getLocation(newProps.id);
+  componentWillReceiveProps (nextProps) {
+    if (nextProps.id !== this.props.id) {
+      this._getLocation(nextProps.id);
     }
-  },
+  }
 
-  _onLocationResponse: function (err, res) {
+  _onLocationResponse (err, res) {
     if (err) {
       this.setState({location: {}, error: err});
     } else if (res.ok) {
-      var result = res.body;
+      const result = res.body;
       this.setState({location: result[0], error: null});
     }
-  },
+  }
 
-  _getLocation: function (id) {
-    var params = {
+  _getLocation (id) {
+    const params = {
       url: encodeURIComponent(config.ldap_base_url),
-      base: encodeURIComponent('ou=' + this.state.scope.ou + ',o=' + config.organization),
+      base: encodeURIComponent(`ou=${this.state.scope.ou},o=${config.organization}`),
       scope: 'sub',
-      filter: '(hpRealEstateID=' + id + ')'
+      filter: `(hpRealEstateID=${id})`
     };
     Rest.get('/ldap/', params).end(this._onLocationResponse);
-  },
+  }
 
-  render: function() {
-    var appTitle = (
+  render () {
+    const appTitle = (
       <FormattedMessage id="Locations Finder" defaultMessage="Locations Finder" />
     );
-    var loc = this.state.location;
-    var address;
+    const loc = this.state.location;
+    let address;
     if (loc.postalAddress) {
-      address = loc.postalAddress.split(/ \$ /).map(function (e, index) {
-        return (<div key={index}>{e}</div>);
-      });
+      address = loc.postalAddress.split(/ \$ /).map((e, index) =>
+        (<div key={index}>{e}</div>));
     }
 
     // NOTE: ED latitude and longitude aren't accurate. Removed the following from Map use:
@@ -76,9 +71,7 @@ var LocationComponent = React.createClass({
             <Logo />
             {appTitle}
           </Title>
-          <span onClick={this.props.onClose}>
-            <SearchIcon />
-          </span>
+          <Button icon="Search" onClick={this.props.onClose} />
         </Header>
         <Section pad="medium">
           <Header tag="h1" justify="between">
@@ -95,6 +88,9 @@ var LocationComponent = React.createClass({
     );
   }
 
-});
+};
 
-module.exports = LocationComponent;
+LocationComponent.propTypes = {
+  id: PropTypes.string.isRequired,
+  onClose: PropTypes.func.isRequired
+};

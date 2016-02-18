@@ -1,9 +1,6 @@
 // (C) Copyright 2014-2015 Hewlett Packard Enterprise Development LP
 
-//for hpe theme, uncomment the following import
-@import '~grommet/scss/hpe/hpe.defaults';
-
-@import '~grommet/scss/grommet-core/index';
+@import '~grommet/scss/hpe/index';
 
 #map {
   width: 100%;

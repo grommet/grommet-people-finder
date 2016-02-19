@@ -126,7 +126,8 @@ export default class Group extends Component {
           {mails}
         </Section>
         <Header key="label" tag="h3" pad="medium">
-          {`Owner${this.state.owners.length > 1 ? 's' : ''}`}
+          <FormattedMessage id="Owners" defaultMessage="Owners"
+            count={owners.length} />
         </Header>
         <List>
           {ownerItems}

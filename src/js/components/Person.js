@@ -87,13 +87,13 @@ export default class Person extends Component {
     let viewLabel;
     if ('details' === this.state.view) {
       view = <Details person={person}/>;
-      viewLabel = 'Details';
+      viewLabel = <FormattedMessage id="Details" defaultMessage="Details" />;
     } else if ('groups' === this.state.view) {
       view = <PersonGroups person={person} onSelect={this.props.onSelect} />;
-      viewLabel = 'Groups';
+      viewLabel = <FormattedMessage id="Groups" defaultMessage="Groups" />;
     } else if ('organization' === this.state.view) {
       view = <Organization person={person} onSelect={this.props.onSelect} />;
-      viewLabel = 'Organization';
+      viewLabel = <FormattedMessage id="Organization" defaultMessage="Organization" />;
     }
 
     let personTitle;
@@ -138,9 +138,15 @@ export default class Person extends Component {
           <Header large={true} pad={{horizontal: "medium"}} justify="between" separator="bottom">
             <h3>{viewLabel}</h3>
             <Menu inline={false} dropAlign={{right: 'right'}}>
-              <Anchor onClick={this._onOrganization}>Organization</Anchor>
-              <Anchor onClick={this._onDetails}>Details</Anchor>
-              <Anchor onClick={this._onGroups}>Groups</Anchor>
+              <Anchor onClick={this._onOrganization}>
+                <FormattedMessage id="Organization" defaultMessage="Organization" />
+              </Anchor>
+              <Anchor onClick={this._onDetails}>
+                <FormattedMessage id="Details" defaultMessage="Details" />
+              </Anchor>
+              <Anchor onClick={this._onGroups}>
+                <FormattedMessage id="Groups" defaultMessage="Groups" />
+              </Anchor>
             </Menu>
           </Header>
           {view}

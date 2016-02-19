@@ -1,4 +1,5 @@
-// (C) Copyright 2014-2015 Hewlett Packard Enterprise Development LP
+// (C) Copyright 2014-2016 Hewlett Packard Enterprise Development LP
+
 module.exports = {
   'People Finder': 'Localizador de Pessoas',
   'Groups Finder': 'Localizador de Grupos',
@@ -6,6 +7,9 @@ module.exports = {
   'People': 'Pessoas',
   'Groups': 'Grupos',
   'Locations': 'Locais',
+  'Organization': 'Organização',
+  'Details': 'Detalhes',
+  'Owners': 'Proprietários',
   'Search': 'Buscar',
   'No matching people': 'Nenhuma pessoa encontrada',
   'No matching groups': 'Nenhum grupo encontrado',

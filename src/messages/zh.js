@@ -1,4 +1,5 @@
-// (C) Copyright 2014-2015 Hewlett Packard Enterprise Development LP
+// (C) Copyright 2014-2016 Hewlett Packard Enterprise Development LP
+
 module.exports = {
   'People Finder': '寻人',
   'Groups Finder': '论坛搜索',

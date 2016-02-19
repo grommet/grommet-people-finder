@@ -15,22 +15,20 @@ addLocaleData(require('react-intl/lib/locale-data/pt'));
 addLocaleData(require('react-intl/lib/locale-data/ja'));
 addLocaleData(require('react-intl/lib/locale-data/zh'));
 
-// try {
-//   import messages from `../messages/${locale}`;
-// } catch (e) {
-import messages from '../messages/en-US';
-// }
-
-const element = document.getElementById('content');
-
+let messages;
+try {
+  messages = require(`../messages/${locale}`);
+} catch (e) {
+  messages = require('../messages/en-US');
+}
 const localeData = getLocaleData(messages, locale);
-
-
 const peopleFinderBody = (
   <IntlProvider locale={localeData.locale} messages={localeData.messages}>
     <PeopleFinder />
   </IntlProvider>
 );
+
+const element = document.getElementById('content');
 
 ReactDOM.render(peopleFinderBody, element);
 

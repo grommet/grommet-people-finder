@@ -1,4 +1,5 @@
-// (C) Copyright 2014-2015 Hewlett Packard Enterprise Development LP
+// (C) Copyright 2014-2016 Hewlett Packard Enterprise Development LP
+
 module.exports = {
   'People Finder': 'People Finder',
   'Groups Finder': 'Groups Finder',
@@ -6,6 +7,9 @@ module.exports = {
   'People': 'People',
   'Groups': 'Groups',
   'Locations': 'Locations',
+  'Organization': 'Organization',
+  'Details': 'Details',
+  'Owners': "Owners", //"{count, plural,\n  =0 {No owners}\n  =1 {Owner}\n  other {Owners}\n}",
   'Search': 'Search',
   'No matching people': 'No matching people',
   'No matching groups': 'No matching groups',

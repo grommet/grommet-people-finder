@@ -39,8 +39,11 @@ export default class Finder extends Component {
     let colorIndex = this.props.scope.colorIndex;
     let footer;
 
+    // use a random background image
+    const imageIndex = ((new Date()).getTime() % 4) + 1;
+
     if (this.props.initial) {
-      texture = "url(img/people-finder-background.jpg)";
+      texture = `url(img/people-finder-background-${imageIndex}.jpg)`;
       colorIndex = "neutral-1-a";
       footer = (
         <Footer float={true} colorIndex="grey-3-a"

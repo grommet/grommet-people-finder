@@ -65,7 +65,8 @@ export default class Finder extends Component {
 
     return (
       <Section texture={texture} full={true} pad="none">
-        <Header key="header" large={true} pad={{horizontal: "medium"}}
+        <Header key="header" large={true}
+          pad={{horizontal: "medium", between: "small"}}
           float={this.props.initial}
           colorIndex={colorIndex} splash={this.props.initial} responsive={false}>
           <Title>

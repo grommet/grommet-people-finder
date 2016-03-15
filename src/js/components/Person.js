@@ -131,7 +131,7 @@ export default class Person extends Component {
             </Box>
             <Map title={person.o}
               street={person.street} city={person.l} state={person.st}
-              postalCode={person.postalCode} country={person.c} />
+              postalCode={person.postalCode} country={person.co} />
           </Article>
         </div>
         <Sidebar>

@@ -6,8 +6,10 @@ import Rest from 'grommet/utils/Rest';
 import Split from 'grommet/components/Split';
 import Box from 'grommet/components/Box';
 import Header from 'grommet/components/Header';
+import Heading from 'grommet/components/Heading';
 import Title from 'grommet/components/Title';
 import Article from 'grommet/components/Article';
+import Paragraph from 'grommet/components/Paragraph';
 import Section from 'grommet/components/Section';
 import Sidebar from 'grommet/components/Sidebar';
 import Menu from 'grommet/components/Menu';
@@ -115,7 +117,7 @@ export default class Person extends Component {
                 <SearchIcon />
               </span>
             </Header>
-            <Box direction="row" pad="none">
+            <Box direction="row" pad="none" align="start">
               <Box pad="medium">
                 <img src={person.hpPictureURI || 'img/no-picture.png'} alt="picture" />
               </Box>
@@ -124,9 +126,11 @@ export default class Person extends Component {
                   <span>{person.cn}</span>
                   <a href={"http://directoryworks.core.hp.com/protected/people/view/person/normal/?dn=" + person.dn}><EditIcon /></a>
                 </Header>
-                <p>{personTitle}</p>
-                <h2><a href={"mailto:" + person.uid}>{person.uid}</a></h2>
-                <h3><a href={"tel:" + person.telephoneNumber}>{person.telephoneNumber}</a></h3>
+                <Paragraph margin="none">{personTitle}</Paragraph>
+                <Box pad={{vertical: "medium"}}>
+                  <h2><a href={"mailto:" + person.uid}>{person.uid}</a></h2>
+                  <h3><a href={"tel:" + person.telephoneNumber}>{person.telephoneNumber}</a></h3>
+                </Box>
               </Section>
             </Box>
             <Map title={person.o}
@@ -137,7 +141,7 @@ export default class Person extends Component {
         <Sidebar>
           <Header large={true} pad={{horizontal: "medium"}} justify="between" separator="bottom">
             <h3>{viewLabel}</h3>
-            <Menu inline={false} dropAlign={{right: 'right'}}>
+            <Menu label="Menu" dropAlign={{right: 'right'}}>
               <Anchor onClick={this._onOrganization}>
                 <FormattedMessage id="Organization" defaultMessage="Organization" />
               </Anchor>

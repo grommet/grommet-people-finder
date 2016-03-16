@@ -6,7 +6,6 @@ import Rest from 'grommet/utils/Rest';
 import Split from 'grommet/components/Split';
 import Box from 'grommet/components/Box';
 import Header from 'grommet/components/Header';
-import Heading from 'grommet/components/Heading';
 import Title from 'grommet/components/Title';
 import Article from 'grommet/components/Article';
 import Paragraph from 'grommet/components/Paragraph';
@@ -14,8 +13,8 @@ import Section from 'grommet/components/Section';
 import Sidebar from 'grommet/components/Sidebar';
 import Menu from 'grommet/components/Menu';
 import Anchor from 'grommet/components/Anchor';
+import Button from 'grommet/components/Button';
 import SearchIcon from 'grommet/components/icons/base/Search';
-import EditIcon from 'grommet/components/icons/base/Edit';
 import Logo from './Logo';
 import Map from './Map';
 import Details from './Details';
@@ -113,18 +112,15 @@ export default class Person extends Component {
                 <Logo />
                 {appTitle}
               </Title>
-              <span onClick={this.props.onClose}>
-                <SearchIcon />
-              </span>
+              <Button icon={<SearchIcon />} onClick={this.props.onClose} />
             </Header>
             <Box direction="row" pad="none" align="start">
               <Box pad="medium">
                 <img src={person.hpPictureURI || 'img/no-picture.png'} alt="picture" />
               </Box>
               <Section pad="medium" className="flex">
-                <Header tag="h1" justify="between">
+                <Header tag="h1">
                   <span>{person.cn}</span>
-                  <a href={"http://directoryworks.core.hp.com/protected/people/view/person/normal/?dn=" + person.dn}><EditIcon /></a>
                 </Header>
                 <Paragraph margin="none">{personTitle}</Paragraph>
                 <Box pad={{vertical: "medium"}}>

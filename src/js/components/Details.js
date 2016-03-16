@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import Rest from 'grommet/utils/Rest';
+import Anchor from 'grommet/components/Anchor';
 import Article from 'grommet/components/Article';
 import Section from 'grommet/components/Section';
 import Heading from 'grommet/components/Heading';
@@ -26,7 +27,6 @@ export default class Details extends Component {
 
   _renderAttribute (label, value, valueCode) {
     let result;
-    let renderedValueCode;
 
     if (value) {
       if (valueCode) {
@@ -69,6 +69,9 @@ export default class Details extends Component {
 
     return (
       <Article pad={{horizontal: 'medium'}}>
+        <Section>
+          <Anchor href={"http://directoryworks.core.hp.com/protected/people/view/person/normal/?dn=" + person.dn} label="Edit in DirectoryWorks" />
+        </Section>
         <Section>
           <Heading tag="h3">Employment</Heading>
           {this._renderAttribute("Employee Number", person.employeeNumber)}

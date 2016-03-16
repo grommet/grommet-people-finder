@@ -138,13 +138,13 @@ export default class Person extends Component {
           <Header large={true} pad={{horizontal: "medium"}} justify="between" separator="bottom">
             <h3>{viewLabel}</h3>
             <Menu label="Menu" dropAlign={{right: 'right'}}>
-              <Anchor onClick={this._onOrganization}>
+              <Anchor className={this.state.view === 'organization' ? 'active' : undefined} onClick={this._onOrganization}>
                 <FormattedMessage id="Organization" defaultMessage="Organization" />
               </Anchor>
-              <Anchor onClick={this._onDetails}>
+              <Anchor className={this.state.view === 'details' ? 'active' : undefined} onClick={this._onDetails}>
                 <FormattedMessage id="Details" defaultMessage="Details" />
               </Anchor>
-              <Anchor onClick={this._onGroups}>
+              <Anchor className={this.state.view === 'groups' ? 'active' : undefined} onClick={this._onGroups}>
                 <FormattedMessage id="Groups" defaultMessage="Groups" />
               </Anchor>
             </Menu>

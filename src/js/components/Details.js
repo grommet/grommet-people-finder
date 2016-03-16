@@ -73,7 +73,7 @@ export default class Details extends Component {
           <Anchor href={"http://directoryworks.core.hp.com/protected/people/view/person/normal/?dn=" + person.dn} label="Edit in DirectoryWorks" />
         </Section>
         <Section>
-          <Heading tag="h3">Employment</Heading>
+          <Heading strong={true} tag="h3">Employment</Heading>
           {this._renderAttribute("Employee Number", person.employeeNumber)}
           {this._renderAttribute("Status", person.hpStatus)}
           {this._renderAttribute("Job Function", person.hpJobFunction, person.hpJobFunctionCode)}
@@ -86,14 +86,14 @@ export default class Details extends Component {
           {this._renderAttribute("Routing Address", person.mailRoutingAddress)}
         </Section>
         <Section>
-          <Heading tag="h3" separator="top">Site</Heading>
+          <Heading strong={true} tag="h3" separator="top">Site</Heading>
           {this._renderAttribute("Building", person.buildingName)}
           {this._renderAttribute("Floor", person.hpFloor)}
           {this._renderAttribute("Post", person.hpPost)}
           {this._renderAttribute("Mailstop", person.mailStop)}
         </Section>
         <Section>
-          <Heading tag="h3" separator="top">Administration</Heading>
+          <Heading strong={true} tag="h3" separator="top">Administration</Heading>
           {this._renderAttribute("Assistant", assistant)}
           {this._renderAttribute("Location Code", person.hpLocationCode)}
           {this._renderAttribute("Lighthouse Cost Center", person.hpLHCostCenter)}

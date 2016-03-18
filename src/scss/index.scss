@@ -11,17 +11,6 @@
   }
 }
 
-// applying highlight and hover color
-// to indicate active menu anchors
-.menu__drop {
-  .anchor {
-    &.active {
-      color: $link-hover-color;
-      background-color: $hover-background-color;
-    }
-  }
-}
-
 // setting min-width so avatar shrinks proportionally
 // and only down until size of small icons
 .avatar {

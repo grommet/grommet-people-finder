@@ -32,7 +32,6 @@ export default class Person extends Component {
     this._onGroups = this._onGroups.bind(this);
     this._onOrganization = this._onOrganization.bind(this);
     this._onLocationResponse = this._onLocationResponse.bind(this);
-    this._renderTimezoneOffset = this._renderTimezoneOffset.bind(this);
     this._checkDayOrNight = this._checkDayOrNight.bind(this);
     this.state = {
       view: 'organization',
@@ -59,11 +58,8 @@ export default class Person extends Component {
       const result = res.body;
       const person = result[0];
 
-      this.setState({person: person, error: null}, () => {
-        if (person.hpWorkLocation) {
-          this._getLocation(person.hpWorkLocation);
-        }
-      });
+      this._getLocation(person.hpWorkLocation);
+      this.setState({person: person, error: null});
     }
   }
 
@@ -82,9 +78,7 @@ export default class Person extends Component {
       this.setState({location: {}, error: err});
     } else if (res.ok) {
       const result = res.body;
-      this.setState({location: result[0], error: null}, () => {
-        this._renderTimezoneOffset();
-      });
+      this.setState({location: result[0], error: null});
     }
   }
 
@@ -143,7 +137,7 @@ export default class Person extends Component {
     // converting personTimezoneOffset from hours to milliseconds
     const personDate = new Date(localUTC + (3600000 * personTimezoneOffset));
     const statusIcon = this._checkDayOrNight(personDate);
-    // negate offset since getTimezoneOffset returns positive minutes 
+    // negate offset since getTimezoneOffset returns positive minutes
     // if the local timezone is behind UTC, and convert into hours
     const currentUTCOffset = (currentDate.getTimezoneOffset() / 60) * -1;
     const offset = currentUTCOffset - personTimezoneOffset;

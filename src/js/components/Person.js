@@ -111,8 +111,8 @@ export default class Person extends Component {
 
   _checkDayOrNight (date) {
     let value = "warning";
-    // check if hours is between 7am and 5pm
-    if (date.getHours() >= 7 && date.getHours() < 18) {
+    // check if hours is between 7am and 6pm
+    if (date.getHours() >= 7 && date.getHours() <= 18) {
       value = "ok";
     }
 
@@ -194,38 +194,36 @@ export default class Person extends Component {
     }
 
     return (
-      <Split flex="left" separator={true}>
-        <div>
-          <Article>
-            <Header large={true} pad={{horizontal: "medium"}} separator="bottom"
-              justify="between">
-              <Title onClick={this.props.onClose} responsive={false}>
-                <Logo />
-                {appTitle}
-              </Title>
-              <Button icon={<SearchIcon />} onClick={this.props.onClose} />
-            </Header>
-            <Box direction="row" pad="none" align="start">
-              <Box pad="medium">
-                <img src={person.hpPictureURI || 'img/no-picture.png'} alt="picture" />
-              </Box>
-              <Section pad="medium" className="flex">
-                <Header tag="h1">
-                  <span>{person.cn}</span>
-                </Header>
-                <Paragraph margin="none">{personTitle}</Paragraph>
-                <Box pad={{vertical: "medium"}}>
-                  <h2><a href={"mailto:" + person.uid}>{person.uid}</a></h2>
-                  <h3><a href={"tel:" + person.telephoneNumber}>{person.telephoneNumber}</a></h3>
-                  <h3>{this._renderTimezoneOffset()}</h3>
-                </Box>
-              </Section>
+      <Split flex="both" separator={true}>
+        <Article>
+          <Header large={true} pad={{horizontal: "medium"}} separator="bottom"
+            justify="between">
+            <Title onClick={this.props.onClose} responsive={false}>
+              <Logo />
+              {appTitle}
+            </Title>
+            <Button icon={<SearchIcon />} onClick={this.props.onClose} />
+          </Header>
+          <Box direction="row" pad="none" align="start">
+            <Box pad="medium">
+              <img className="avatar" src={person.hpPictureURI || 'img/no-picture.png'} alt="picture" />
             </Box>
-            <Map title={person.o}
-              street={person.street} city={person.l} state={person.st}
-              postalCode={person.postalCode} country={person.co} />
-          </Article>
-        </div>
+            <Section pad="medium" className="flex">
+              <Header tag="h1">
+                <span>{person.cn}</span>
+              </Header>
+              <Paragraph margin="none">{personTitle}</Paragraph>
+              <Box pad={{vertical: "medium"}}>
+                <h2><a href={"mailto:" + person.uid}>{person.uid}</a></h2>
+                <h3><a href={"tel:" + person.telephoneNumber}>{person.telephoneNumber}</a></h3>
+                <h3>{this._renderTimezoneOffset()}</h3>
+              </Box>
+            </Section>
+          </Box>
+          <Map title={person.o}
+            street={person.street} city={person.l} state={person.st}
+            postalCode={person.postalCode} country={person.co} />
+        </Article>
         <Sidebar>
           <Header large={true} pad={{horizontal: "medium"}} justify="between" separator="bottom">
             <h3>{viewLabel}</h3>

@@ -12,11 +12,13 @@
 }
 
 
-// removing highlight for active menu anchors
+// removing highlight and applying darker hover color
+// for active menu anchors
 .menu__drop {
   .anchor {
     &.active {
       color: $link-hover-color;
+
       &:hover {
         background-color: inherit;
       }

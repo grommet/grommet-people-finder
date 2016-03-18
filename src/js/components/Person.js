@@ -59,11 +59,11 @@ export default class Person extends Component {
       const result = res.body;
       const person = result[0];
 
-      if (person.hpWorkLocation) {
-        this._getLocation(person.hpWorkLocation);
-      }
-
-      this.setState({person: result[0], error: null});
+      this.setState({person: person, error: null}, () => {
+        if (person.hpWorkLocation) {
+          this._getLocation(person.hpWorkLocation);
+        }
+      });
     }
   }
 
@@ -82,7 +82,6 @@ export default class Person extends Component {
       this.setState({location: {}, error: err});
     } else if (res.ok) {
       const result = res.body;
-      console.log('timezone', result[0].timeZone);
       this.setState({location: result[0], error: null}, () => {
         this._renderTimezoneOffset();
       });
@@ -112,8 +111,8 @@ export default class Person extends Component {
 
   _checkDayOrNight (date) {
     let value = "warning";
-    console.log('date.getHours()', date.getHours());
-    if (date.getHours() >= 7 && date.getHours() <= 18) {
+    // check if hours is between 7am and 5pm
+    if (date.getHours() >= 7 && date.getHours() < 18) {
       value = "ok";
     }
 
@@ -129,30 +128,33 @@ export default class Person extends Component {
     }
 
     const currentDate = new Date();
+    // converting minutes to milliseconds for localOffset
     const localOffset = currentDate.getTimezoneOffset() * 60000;
     const localTime = currentDate.getTime();
     const localUTC = localTime + localOffset;
-    // expecting personTimezone to be strings like "+0100"
+    // expect personTimezone to look like "+0100"
     // take positive or negative sign, and convert to int
     const offsetSign = Number.parseInt(personTimezone.substr(0, 1) + '1');
     // taking hours offset
     const personHoursOffset = Number.parseInt(personTimezone.substr(1, 2));
     // taking last two "digits" from string to convert to decimal
-    let personMinutesOffset = personTimezone.substr(-2);
-    personMinutesOffset = Number.parseInt(personMinutesOffset) / 60;
+    const personMinutesOffset = Number.parseInt(personTimezone.substr(-2)) / 60;
     const personTimezoneOffset = (personHoursOffset + personMinutesOffset) * offsetSign;
+    // converting personTimezoneOffset from hours to milliseconds
     const personDate = new Date(localUTC + (3600000 * personTimezoneOffset));
     const statusIcon = this._checkDayOrNight(personDate);
-
-    // negate offset since getTimezoneOffset returns positive minutes if the local timezone is behind UTC
+    // negate offset since getTimezoneOffset returns positive minutes 
+    // if the local timezone is behind UTC, and convert into hours
     const currentUTCOffset = (currentDate.getTimezoneOffset() / 60) * -1;
     const offset = currentUTCOffset - personTimezoneOffset;
     let timezoneString;
+    // formatting timezone from LDAP
+    const formattedPersonTimezone = `${personTimezone.substr(0,3)}:${personTimezone.substr(3,2)}`;
 
     if (offset < 0) {
-      timezoneString = `Your current browser location is ${Math.abs(offset)} hours behind ${person.givenName}'s location (UTC ${personTimezone.substr(0,3)}:${personTimezone.substr(3,2)}).`;
+      timezoneString = `Your current browser location is ${Math.abs(offset)} hours behind ${person.givenName}'s location (UTC ${formattedPersonTimezone}).`;
     } else {
-      timezoneString = `Your current browser location is ${offset} hours ahead of ${person.givenName}'s location (UTC ${personTimezone.substr(0,3)}:${personTimezone.substr(3,2)}).`;
+      timezoneString = `Your current browser location is ${offset} hours ahead of ${person.givenName}'s location (UTC ${formattedPersonTimezone}).`;
     }
 
     if (timezoneString) {

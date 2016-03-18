@@ -23,6 +23,8 @@ import Organization from './Organization';
 import PersonGroups from './PersonGroups';
 import config from '../config';
 
+const GEONAMES_USERNAME = 'people_finder_app';
+
 export default class Person extends Component {
 
   constructor () {
@@ -36,7 +38,6 @@ export default class Person extends Component {
     this.state = {
       view: 'organization',
       person: {},
-      location: {},
       scope: config.scopes.people
     };
   }
@@ -75,10 +76,13 @@ export default class Person extends Component {
 
   _onLocationResponse (err, res) {
     if (err) {
-      this.setState({location: {}, error: err});
+      this.setState({error: err});
     } else if (res.ok) {
       const result = res.body;
-      this.setState({location: result[0], error: null});
+      const location = result[0];
+      if (location.latitude && location.longitude) {
+        this._getTimezone(location.latitude, location.longitude);
+      }
     }
   }
 
@@ -113,54 +117,33 @@ export default class Person extends Component {
     return <Status value={value} />;
   }
 
-  _renderTimezoneOffset () {
+  _getTimezone (latitude, longitude) {
     const person = this.state.person;
-    const personTimezone = this.state.location.timeZone;
+    const params = {
+      lat: latitude,
+      lng: longitude,
+      username: GEONAMES_USERNAME
+    };
 
-    if (! personTimezone) {
-      return;
-    }
+    Rest
+      .get("http://api.geonames.org/timezoneJSON", params)
+      .end((err, res) => {
+        if (err) {
+          this.setState({currentPersonTime: '', error: err});
+        } else if (res.ok) {
+          const result = res.body;
+          const time = result.time;
 
-    const currentDate = new Date();
-    // converting minutes to milliseconds for localOffset
-    const localOffset = currentDate.getTimezoneOffset() * 60000;
-    const localTime = currentDate.getTime();
-    const localUTC = localTime + localOffset;
-    // expect personTimezone to look like "+0100"
-    // take positive or negative sign, and convert to int
-    const offsetSign = Number.parseInt(personTimezone.substr(0, 1) + '1');
-    // taking hours offset
-    const personHoursOffset = Number.parseInt(personTimezone.substr(1, 2));
-    // taking last two "digits" from string to convert to decimal
-    const personMinutesOffset = Number.parseInt(personTimezone.substr(-2)) / 60;
-    const personTimezoneOffset = (personHoursOffset + personMinutesOffset) * offsetSign;
-    // converting personTimezoneOffset from hours to milliseconds
-    const personDate = new Date(localUTC + (3600000 * personTimezoneOffset));
-    const statusIcon = this._checkDayOrNight(personDate);
-    // negate offset since getTimezoneOffset returns positive minutes
-    // if the local timezone is behind UTC, and convert into hours
-    const currentUTCOffset = (currentDate.getTimezoneOffset() / 60) * -1;
-    const offset = currentUTCOffset - personTimezoneOffset;
-    let timezoneString;
-    // formatting timezone from LDAP
-    const formattedPersonTimezone = `${personTimezone.substr(0,3)}:${personTimezone.substr(3,2)}`;
+          let personHour = Number.parseInt(time.substr(11, 2));
+          const ampm = personHour >= 12 ? 'pm' : 'am';
+          personHour = personHour % 12;
+          // account for midnight
+          personHour = personHour ? personHour : 12;
+          const currentPersonTime = `It is ${personHour}${ampm} in ${person.l}.`;
 
-    if (offset < 0) {
-      timezoneString = `Your current browser location is ${Math.abs(offset)} hours behind ${person.givenName}'s location (UTC ${formattedPersonTimezone}).`;
-    } else {
-      timezoneString = `Your current browser location is ${offset} hours ahead of ${person.givenName}'s location (UTC ${formattedPersonTimezone}).`;
-    }
-
-    if (timezoneString) {
-      return (
-        <Box direction="row" align="center">
-          {timezoneString}
-          <Box pad={{horizontal: 'medium'}}>
-            {statusIcon}
-          </Box>
-        </Box>
-      );
-    }
+          this.setState({currentPersonTime: currentPersonTime, error: null});
+        }
+      });
   }
 
   render () {
@@ -210,7 +193,7 @@ export default class Person extends Component {
               <Box pad={{vertical: "medium"}}>
                 <h2><a href={"mailto:" + person.uid}>{person.uid}</a></h2>
                 <h3><a href={"tel:" + person.telephoneNumber}>{person.telephoneNumber}</a></h3>
-                <h3>{this._renderTimezoneOffset()}</h3>
+                <h3>{this.state.currentPersonTime}</h3>
               </Box>
             </Section>
           </Box>
@@ -231,6 +214,7 @@ export default class Person extends Component {
               <Anchor className={this.state.view === 'groups' ? 'active' : undefined} onClick={this._onGroups}>
                 <FormattedMessage id="Groups" defaultMessage="Groups" />
               </Anchor>
+              <Anchor href={"http://directoryworks.core.hp.com/protected/people/view/person/normal/?dn=" + person.dn} label="Edit in DirectoryWorks" />
             </Menu>
           </Header>
           {view}

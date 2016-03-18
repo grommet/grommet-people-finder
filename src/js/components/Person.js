@@ -3,23 +3,24 @@
 import React, { Component, PropTypes } from 'react';
 import { FormattedMessage } from 'react-intl';
 import Rest from 'grommet/utils/Rest';
-import Split from 'grommet/components/Split';
-import Box from 'grommet/components/Box';
-import Header from 'grommet/components/Header';
-import Title from 'grommet/components/Title';
+import Anchor from 'grommet/components/Anchor';
 import Article from 'grommet/components/Article';
+import Box from 'grommet/components/Box';
+import Button from 'grommet/components/Button';
+import Header from 'grommet/components/Header';
+import Menu from 'grommet/components/Menu';
 import Paragraph from 'grommet/components/Paragraph';
 import Section from 'grommet/components/Section';
 import Sidebar from 'grommet/components/Sidebar';
-import Menu from 'grommet/components/Menu';
-import Anchor from 'grommet/components/Anchor';
-import Button from 'grommet/components/Button';
+import Split from 'grommet/components/Split';
+import Title from 'grommet/components/Title';
+import Status from 'grommet/components/icons/Status';
 import SearchIcon from 'grommet/components/icons/base/Search';
+import Details from './Details';
 import Logo from './Logo';
 import Map from './Map';
-import Details from './Details';
-import PersonGroups from './PersonGroups';
 import Organization from './Organization';
+import PersonGroups from './PersonGroups';
 import config from '../config';
 
 export default class Person extends Component {
@@ -30,9 +31,13 @@ export default class Person extends Component {
     this._onDetails = this._onDetails.bind(this);
     this._onGroups = this._onGroups.bind(this);
     this._onOrganization = this._onOrganization.bind(this);
+    this._onLocationResponse = this._onLocationResponse.bind(this);
+    this._renderTimezoneOffset = this._renderTimezoneOffset.bind(this);
+    this._checkDayOrNight = this._checkDayOrNight.bind(this);
     this.state = {
       view: 'organization',
       person: {},
+      location: {},
       scope: config.scopes.people
     };
   }
@@ -51,7 +56,13 @@ export default class Person extends Component {
     if (err) {
       this.setState({person: {}, error: err});
     } else if (res.ok) {
-      var result = res.body;
+      const result = res.body;
+      const person = result[0];
+
+      if (person.hpWorkLocation) {
+        this._getLocation(person.hpWorkLocation);
+      }
+
       this.setState({person: result[0], error: null});
     }
   }
@@ -66,6 +77,27 @@ export default class Person extends Component {
     Rest.get('/ldap/', params).end(this._onPersonResponse);
   }
 
+  _onLocationResponse (err, res) {
+    if (err) {
+      this.setState({location: {}, error: err});
+    } else if (res.ok) {
+      const result = res.body;
+      console.log('timezone', result[0].timeZone);
+      this.setState({location: result[0], error: null}, () => {
+        this._renderTimezoneOffset();
+      });
+    }
+  }
+
+  _getLocation (workLocation) {
+    const params = {
+      url: encodeURIComponent(config.ldap_base_url),
+      base: workLocation,
+      scope: 'sub'
+    };
+    Rest.get('/ldap/', params).end(this._onLocationResponse);
+  }
+
   _onDetails () {
     this.setState({view: 'details'});
   }
@@ -76,6 +108,63 @@ export default class Person extends Component {
 
   _onOrganization () {
     this.setState({view: 'organization'});
+  }
+
+  _checkDayOrNight (date) {
+    let value = "warning";
+    console.log('date.getHours()', date.getHours());
+    if (date.getHours() >= 7 && date.getHours() <= 18) {
+      value = "ok";
+    }
+
+    return <Status value={value} />;
+  }
+
+  _renderTimezoneOffset () {
+    const person = this.state.person;
+    const personTimezone = this.state.location.timeZone;
+
+    if (! personTimezone) {
+      return;
+    }
+
+    const currentDate = new Date();
+    const localOffset = currentDate.getTimezoneOffset() * 60000;
+    const localTime = currentDate.getTime();
+    const localUTC = localTime + localOffset;
+    // expecting personTimezone to be strings like "+0100"
+    // take positive or negative sign, and convert to int
+    const offsetSign = Number.parseInt(personTimezone.substr(0, 1) + '1');
+    // taking hours offset
+    const personHoursOffset = Number.parseInt(personTimezone.substr(1, 2));
+    // taking last two "digits" from string to convert to decimal
+    let personMinutesOffset = personTimezone.substr(-2);
+    personMinutesOffset = Number.parseInt(personMinutesOffset) / 60;
+    const personTimezoneOffset = (personHoursOffset + personMinutesOffset) * offsetSign;
+    const personDate = new Date(localUTC + (3600000 * personTimezoneOffset));
+    const statusIcon = this._checkDayOrNight(personDate);
+
+    // negate offset since getTimezoneOffset returns positive minutes if the local timezone is behind UTC
+    const currentUTCOffset = (currentDate.getTimezoneOffset() / 60) * -1;
+    const offset = currentUTCOffset - personTimezoneOffset;
+    let timezoneString;
+
+    if (offset < 0) {
+      timezoneString = `Your current browser location is ${Math.abs(offset)} hours behind ${person.givenName}'s location (UTC ${personTimezone.substr(0,3)}:${personTimezone.substr(3,2)}).`;
+    } else {
+      timezoneString = `Your current browser location is ${offset} hours ahead of ${person.givenName}'s location (UTC ${personTimezone.substr(0,3)}:${personTimezone.substr(3,2)}).`;
+    }
+
+    if (timezoneString) {
+      return (
+        <Box direction="row" align="center">
+          {timezoneString}
+          <Box pad={{horizontal: 'medium'}}>
+            {statusIcon}
+          </Box>
+        </Box>
+      );
+    }
   }
 
   render () {
@@ -126,6 +215,7 @@ export default class Person extends Component {
                 <Box pad={{vertical: "medium"}}>
                   <h2><a href={"mailto:" + person.uid}>{person.uid}</a></h2>
                   <h3><a href={"tel:" + person.telephoneNumber}>{person.telephoneNumber}</a></h3>
+                  <h3>{this._renderTimezoneOffset()}</h3>
                 </Box>
               </Section>
             </Box>

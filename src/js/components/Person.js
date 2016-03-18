@@ -214,8 +214,7 @@ export default class Person extends Component {
               <Anchor className={this.state.view === 'groups' ? 'active' : undefined} onClick={this._onGroups}>
                 <FormattedMessage id="Groups" defaultMessage="Groups" />
               </Anchor>
-              <Anchor href={"http://directoryworks.core.hp.com/protected/people/view/person/normal/?dn=" + person.dn} label="Edit in DirectoryWorks">
-              </Anchor>
+              <Anchor href={"http://directoryworks.core.hp.com/protected/people/view/person/normal/?dn=" + person.dn} label="Edit in DirectoryWorks" />
             </Menu>
           </Header>
           {view}

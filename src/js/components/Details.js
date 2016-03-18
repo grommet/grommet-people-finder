@@ -2,7 +2,6 @@
 
 import React, { Component, PropTypes } from 'react';
 import Rest from 'grommet/utils/Rest';
-import Anchor from 'grommet/components/Anchor';
 import Article from 'grommet/components/Article';
 import Section from 'grommet/components/Section';
 import Heading from 'grommet/components/Heading';

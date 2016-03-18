@@ -10,3 +10,9 @@
     border-radius: $border-radius;
   }
 }
+
+// setting min-width so avatar shrinks proportionally
+// and only down until size of small icons
+.avatar {
+  min-width: 48px;
+}

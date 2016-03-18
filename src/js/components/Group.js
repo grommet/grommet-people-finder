@@ -9,6 +9,7 @@ import Article from 'grommet/components/Article';
 import Section from 'grommet/components/Section';
 import List from 'grommet/components/List';
 import Button from 'grommet/components/Button';
+import SearchIcon from 'grommet/components/icons/base/Search';
 import PersonListItem from './PersonListItem';
 import BusyListItem from './BusyListItem';
 import Logo from './Logo';
@@ -116,7 +117,7 @@ export default class Group extends Component {
             <Logo />
             {appTitle}
           </Title>
-          <Button icon="Search" onClick={this.props.onClose} />
+          <Button icon={<SearchIcon />} onClick={this.props.onClose} />
         </Header>
         <Section pad="medium">
           <Header tag="h1" justify="between">

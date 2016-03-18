@@ -2,6 +2,8 @@
 
 import React, { Component, PropTypes } from 'react';
 import Article from 'grommet/components/Article';
+import Box from 'grommet/components/Box';
+import Label from 'grommet/components/Label';
 import List from 'grommet/components/List';
 import Header from 'grommet/components/Header';
 import Rest from 'grommet/utils/Rest';
@@ -129,6 +131,14 @@ export default class Organization extends Component {
         </Header>,
         <List key="team">{members}</List>
       ];
+    } else {
+      if (!this.state.busy) {
+        team = (
+          <Box pad="medium">
+            <Label className="secondary">{`${person.givenName} has no direct reports.`}</Label>
+          </Box>
+        );
+      }
     }
 
     return (

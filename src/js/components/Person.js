@@ -14,7 +14,6 @@ import Section from 'grommet/components/Section';
 import Sidebar from 'grommet/components/Sidebar';
 import Split from 'grommet/components/Split';
 import Title from 'grommet/components/Title';
-import Status from 'grommet/components/icons/Status';
 import SearchIcon from 'grommet/components/icons/base/Search';
 import Details from './Details';
 import Logo from './Logo';
@@ -34,7 +33,6 @@ export default class Person extends Component {
     this._onGroups = this._onGroups.bind(this);
     this._onOrganization = this._onOrganization.bind(this);
     this._onLocationResponse = this._onLocationResponse.bind(this);
-    this._checkDayOrNight = this._checkDayOrNight.bind(this);
     this.state = {
       view: 'organization',
       person: {},
@@ -79,10 +77,7 @@ export default class Person extends Component {
       this.setState({error: err});
     } else if (res.ok) {
       const result = res.body;
-      const location = result[0];
-      if (location.latitude && location.longitude) {
-        this._getTimezone(location.latitude, location.longitude);
-      }
+      this._getTimezone(result[0]);
     }
   }
 
@@ -107,43 +102,80 @@ export default class Person extends Component {
     this.setState({view: 'organization'});
   }
 
-  _checkDayOrNight (date) {
-    let value = "warning";
-    // check if hours is between 7am and 6pm
-    if (date.getHours() >= 7 && date.getHours() <= 18) {
-      value = "ok";
-    }
+  _formatHourInCity (hour, city, timezone) {
+    const ampm = hour >= 12 ? 'pm' : 'am';
+    let currentHour = hour % 12;
+    // account for midnight
+    currentHour = currentHour ? currentHour : 12;
 
-    return <Status value={value} />;
+    if (timezone) {
+      return `It is ${currentHour}${ampm} in ${city} (${timezone} UTC).`;
+    } else {
+      return `It is ${currentHour}${ampm} in ${city}.`;
+    }
   }
 
-  _getTimezone (latitude, longitude) {
+  _getHourFromLDAPTimezone (personTimezone) {
+    const currentDate = new Date();
+    // converting minutes to milliseconds for localOffset
+    const localOffset = currentDate.getTimezoneOffset() * 60000;
+    const localTime = currentDate.getTime();
+    const localUTC = localTime + localOffset;
+    // expect personTimezone to look like "+0100"
+    // take positive or negative sign, and convert to int
+    const offsetSign = Number.parseInt(personTimezone.substr(0, 1) + '1');
+    // taking hours offset
+    const personHoursOffset = Number.parseInt(personTimezone.substr(1, 2));
+    // taking last two "digits" from string to convert to decimal
+    const personMinutesOffset = Number.parseInt(personTimezone.substr(-2)) / 60;
+    const personTimezoneOffset = (personHoursOffset + personMinutesOffset) * offsetSign;
+    // converting personTimezoneOffset from hours to milliseconds
+    const personDate = new Date(localUTC + (3600000 * personTimezoneOffset));
+
+    return personDate.getHours();
+  }
+
+  _getTimezone (location) {
     const person = this.state.person;
-    const params = {
-      lat: latitude,
-      lng: longitude,
-      username: GEONAMES_USERNAME
-    };
+    let currentPersonTime;
 
-    Rest
-      .get("http://api.geonames.org/timezoneJSON", params)
-      .end((err, res) => {
-        if (err) {
-          this.setState({currentPersonTime: '', error: err});
-        } else if (res.ok) {
-          const result = res.body;
-          const time = result.time;
+    if (location.latitude && location.longitude) {
+      const params = {
+        lat: location.latitude,
+        lng: location.longitude,
+        username: GEONAMES_USERNAME
+      };
 
-          let personHour = Number.parseInt(time.substr(11, 2));
-          const ampm = personHour >= 12 ? 'pm' : 'am';
-          personHour = personHour % 12;
-          // account for midnight
-          personHour = personHour ? personHour : 12;
-          const currentPersonTime = `It is ${personHour}${ampm} in ${person.l}.`;
+      Rest
+        .get("http://api.geonames.org/timezoneJSON", params)
+        .end((err, res) => {
+          if (err) {
+            this.setState({currentPersonTime: '', error: err});
+          } else if (res.ok) {
+            const result = res.body;
+            const time = result.time;
+            const personHour = Number.parseInt(time.substr(11, 2));
+            currentPersonTime = this._formatHourInCity(personHour, person.l);
 
-          this.setState({currentPersonTime: currentPersonTime, error: null});
-        }
-      });
+            this.setState({currentPersonTime: currentPersonTime, error: null});
+          }
+        });
+    } else if (location.timeZone) {
+      // fallback to using timeZone data from LDAP server
+      // (which might not be taking DST into account)
+      const personTimezone = location.timeZone;
+      const personHour = this._getHourFromLDAPTimezone(personTimezone);
+      // formatting timezone from LDAP
+      const formattedPersonTimezone = `${personTimezone.substr(0,3)}:${personTimezone.substr(3,2)}`;
+      currentPersonTime = this._formatHourInCity(personHour, person.l, formattedPersonTimezone);
+
+      this.setState({currentPersonTime: currentPersonTime});
+    } else {
+      // could not find latitude + longitude, or timeZone
+      // properties from LDAP location query
+      currentPersonTime = 'No timezone information found.';
+      this.setState({currentPersonTime: currentPersonTime});
+    }
   }
 
   render () {

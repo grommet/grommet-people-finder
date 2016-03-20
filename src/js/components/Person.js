@@ -160,20 +160,21 @@ export default class Person extends Component {
             this.setState({currentPersonTime: currentPersonTime, error: null});
           }
         });
-    } else if (location.timeZone) {
-      // fallback to using timeZone data from LDAP server
-      // (which might not be taking DST into account)
-      const personTimezone = location.timeZone;
-      const personHour = this._getHourFromLDAPTimezone(personTimezone);
-      // formatting timezone from LDAP
-      const formattedPersonTimezone = `${personTimezone.substr(0,3)}:${personTimezone.substr(3,2)}`;
-      currentPersonTime = this._formatHourInCity(personHour, person.l, formattedPersonTimezone);
-
-      this.setState({currentPersonTime: currentPersonTime});
     } else {
       // could not find latitude + longitude, or timeZone
       // properties from LDAP location query
       currentPersonTime = 'No timezone information found.';
+      
+      if (location.timeZone) {
+        // fallback to using timeZone data from LDAP server
+        // (which might not be taking DST into account)
+        const personTimezone = location.timeZone;
+        const personHour = this._getHourFromLDAPTimezone(personTimezone);
+        // formatting timezone from LDAP
+        const formattedPersonTimezone = `${personTimezone.substr(0,3)}:${personTimezone.substr(3,2)}`;
+        currentPersonTime = this._formatHourInCity(personHour, person.l, formattedPersonTimezone);
+      }
+
       this.setState({currentPersonTime: currentPersonTime});
     }
   }

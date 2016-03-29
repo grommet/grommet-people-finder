@@ -2,19 +2,20 @@
 
 import React, { Component, PropTypes } from 'react';
 import { FormattedMessage } from 'react-intl';
+import Responsive from 'grommet/utils/Responsive';
 import Rest from 'grommet/utils/Rest';
 import Anchor from 'grommet/components/Anchor';
 import Article from 'grommet/components/Article';
 import Box from 'grommet/components/Box';
 import Button from 'grommet/components/Button';
 import Header from 'grommet/components/Header';
+import Heading from 'grommet/components/Heading';
 import Menu from 'grommet/components/Menu';
 import Paragraph from 'grommet/components/Paragraph';
 import Section from 'grommet/components/Section';
 import Sidebar from 'grommet/components/Sidebar';
 import Split from 'grommet/components/Split';
 import Title from 'grommet/components/Title';
-import Status from 'grommet/components/icons/Status';
 import SearchIcon from 'grommet/components/icons/base/Search';
 import Details from './Details';
 import Logo from './Logo';
@@ -29,20 +30,23 @@ export default class Person extends Component {
 
   constructor () {
     super();
+    this._onResponsive = this._onResponsive.bind(this);
     this._onPersonResponse = this._onPersonResponse.bind(this);
     this._onDetails = this._onDetails.bind(this);
     this._onGroups = this._onGroups.bind(this);
     this._onOrganization = this._onOrganization.bind(this);
+    this._onContact = this._onContact.bind(this);
     this._onLocationResponse = this._onLocationResponse.bind(this);
-    this._checkDayOrNight = this._checkDayOrNight.bind(this);
     this.state = {
       view: 'organization',
       person: {},
-      scope: config.scopes.people
+      scope: config.scopes.people,
+      responsive: false
     };
   }
 
   componentDidMount () {
+    this._responsive = Responsive.start(this._onResponsive);
     this._getPerson(this.props.id);
   }
 
@@ -52,15 +56,36 @@ export default class Person extends Component {
     }
   }
 
+  componentWillUnmount () {
+    this._responsive.stop();
+  }
+
+  _onResponsive (responsive) {
+    // check for view (sidebar) state, and make sure view is not
+    // set to 'contact' on larger sizes
+    let view = this.state.view;
+    if (! responsive && ('contact' === view)) {
+      view = 'organization';
+    } else if (responsive) {
+      view = 'contact';
+    }
+    this.setState({responsive: responsive, view: view});
+  }
+
   _onPersonResponse (err, res) {
     if (err) {
       this.setState({person: {}, error: err});
     } else if (res.ok) {
       const result = res.body;
       const person = result[0];
+      let view = this.state.view;
+
+      if (this.state.responsive) {
+        view = 'contact';
+      }
 
       this._getLocation(person.hpWorkLocation);
-      this.setState({person: person, error: null});
+      this.setState({person: person, error: null, view: view});
     }
   }
 
@@ -79,10 +104,7 @@ export default class Person extends Component {
       this.setState({error: err});
     } else if (res.ok) {
       const result = res.body;
-      const location = result[0];
-      if (location.latitude && location.longitude) {
-        this._getTimezone(location.latitude, location.longitude);
-      }
+      this._getTimezone(result[0]);
     }
   }
 
@@ -107,43 +129,86 @@ export default class Person extends Component {
     this.setState({view: 'organization'});
   }
 
-  _checkDayOrNight (date) {
-    let value = "warning";
-    // check if hours is between 7am and 6pm
-    if (date.getHours() >= 7 && date.getHours() <= 18) {
-      value = "ok";
-    }
-
-    return <Status value={value} />;
+  _onContact () {
+    // allow sidebar content to be set to 'contact' view for mobile
+    this.setState({view: 'contact'});
   }
 
-  _getTimezone (latitude, longitude) {
+  _formatHourInCity (hour, city, timezone) {
+    const ampm = hour >= 12 ? 'pm' : 'am';
+    let currentHour = hour % 12;
+    // account for midnight
+    currentHour = currentHour ? currentHour : 12;
+
+    if (timezone) {
+      return `It is ${currentHour}${ampm} in ${city} (${timezone} UTC).`;
+    } else {
+      return `It is ${currentHour}${ampm} in ${city}.`;
+    }
+  }
+
+  _getHourFromLDAPTimezone (personTimezone) {
+    const currentDate = new Date();
+    // converting minutes to milliseconds for localOffset
+    const localOffset = currentDate.getTimezoneOffset() * 60000;
+    const localTime = currentDate.getTime();
+    const localUTC = localTime + localOffset;
+    // expect personTimezone to look like "+0100"
+    // take positive or negative sign, and convert to int
+    const offsetSign = Number.parseInt(personTimezone.substr(0, 1) + '1');
+    // taking hours offset
+    const personHoursOffset = Number.parseInt(personTimezone.substr(1, 2));
+    // taking last two "digits" from string to convert to decimal
+    const personMinutesOffset = Number.parseInt(personTimezone.substr(-2)) / 60;
+    const personTimezoneOffset = (personHoursOffset + personMinutesOffset) * offsetSign;
+    // converting personTimezoneOffset from hours to milliseconds
+    const personDate = new Date(localUTC + (3600000 * personTimezoneOffset));
+
+    return personDate.getHours();
+  }
+
+  _getTimezone (location) {
     const person = this.state.person;
-    const params = {
-      lat: latitude,
-      lng: longitude,
-      username: GEONAMES_USERNAME
-    };
+    let currentPersonTime;
 
-    Rest
-      .get("http://api.geonames.org/timezoneJSON", params)
-      .end((err, res) => {
-        if (err) {
-          this.setState({currentPersonTime: '', error: err});
-        } else if (res.ok) {
-          const result = res.body;
-          const time = result.time;
+    if (location.latitude && location.longitude) {
+      const params = {
+        lat: location.latitude,
+        lng: location.longitude,
+        username: GEONAMES_USERNAME
+      };
 
-          let personHour = Number.parseInt(time.substr(11, 2));
-          const ampm = personHour >= 12 ? 'pm' : 'am';
-          personHour = personHour % 12;
-          // account for midnight
-          personHour = personHour ? personHour : 12;
-          const currentPersonTime = `It is ${personHour}${ampm} in ${person.l}.`;
+      Rest
+        .get("http://api.geonames.org/timezoneJSON", params)
+        .end((err, res) => {
+          if (err) {
+            this.setState({currentPersonTime: '', error: err});
+          } else if (res.ok) {
+            const result = res.body;
+            const time = result.time;
+            const personHour = Number.parseInt(time.substr(11, 2));
+            currentPersonTime = this._formatHourInCity(personHour, person.l);
 
-          this.setState({currentPersonTime: currentPersonTime, error: null});
-        }
-      });
+            this.setState({currentPersonTime: currentPersonTime, error: null});
+          }
+        });
+    } else {
+      // could not find latitude + longitude, or timeZone
+      // properties from LDAP location query
+      currentPersonTime = 'No timezone information found.';
+
+      if (location.timeZone) {
+        // fallback to using timeZone data from LDAP server
+        // (which might not be taking DST into account)
+        const personTimezone = location.timeZone;
+        const personHour = this._getHourFromLDAPTimezone(personTimezone);
+        // formatting timezone from LDAP
+        const formattedPersonTimezone = `${personTimezone.substr(0,3)}:${personTimezone.substr(3,2)}`;
+        currentPersonTime = this._formatHourInCity(personHour, person.l, formattedPersonTimezone);
+      }
+
+      this.setState({currentPersonTime: currentPersonTime});
+    }
   }
 
   render () {
@@ -151,6 +216,63 @@ export default class Person extends Component {
       <FormattedMessage id="People Finder" defaultMessage="People Finder" />
     );
     const person = this.state.person;
+
+    let personTitle;
+    if (person.title) {
+      personTitle = person.title.replace(/&amp;/g, '&');
+    }
+
+    let header;
+    if ('contact' !== this.state.view) {
+      header = (
+        <Header large={true} pad={{horizontal: "medium"}} separator="bottom"
+          justify="between">
+          <Title onClick={this.props.onClose} responsive={false}>
+            <Logo />
+            {appTitle}
+          </Title>
+          <Button icon={<SearchIcon />} onClick={this.props.onClose} />
+        </Header>
+      );
+    }
+
+    let contact;
+    let boxDirection = "row";
+    let contactPad = "none";
+    let contactContentsPad = "medium";
+    let contactInfoPad = { vertical: "medium" };
+
+    if (this.state.responsive) {
+      boxDirection = "column";
+      contactPad = { vertical: "medium", between: "medium" };
+      contactContentsPad = { horizontal: "medium" };
+      contactInfoPad = "none";
+    }
+
+    contact = (
+      <Article>
+        {header}
+        <Box direction={boxDirection} pad={contactPad} align="start">
+          <Box pad={contactContentsPad}>
+            <img className="avatar" src={person.hpPictureURI || 'img/no-picture.png'} alt="picture" />
+          </Box>
+          <Section pad={contactContentsPad} className="flex">
+            <Header tag="h1">
+              <span>{person.cn}</span>
+            </Header>
+            <Paragraph margin="none">{personTitle}</Paragraph>
+            <Box pad={contactInfoPad}>
+              <h2><a href={"mailto:" + person.uid}>{person.uid}</a></h2>
+              <h3><a href={"tel:" + person.telephoneNumber}>{person.telephoneNumber}</a></h3>
+              <h3>{this.state.currentPersonTime}</h3>
+            </Box>
+          </Section>
+        </Box>
+        <Map title={person.o}
+          street={person.street} city={person.l} state={person.st}
+          postalCode={person.postalCode} country={person.co} />
+      </Article>
+    );
 
     let view;
     let viewLabel;
@@ -163,48 +285,35 @@ export default class Person extends Component {
     } else if ('organization' === this.state.view) {
       view = <Organization person={person} onSelect={this.props.onSelect} />;
       viewLabel = <FormattedMessage id="Organization" defaultMessage="Organization" />;
+    } else if ('contact' === this.state.view) {
+      view = contact;
+      viewLabel = "Contact";
     }
 
-    let personTitle;
-    if (person.title) {
-      personTitle = person.title.replace(/&amp;/g, '&');
+    let contactAnchor;
+    let viewHeader = <Heading tag="h3">{viewLabel}</Heading>;
+    if (this.state.responsive) {
+      // on mobile, allow contact (main Person content) as a menu option
+      // and show logo with bolded viewLabel
+      contactAnchor = <Anchor className={this.state.view === 'contact' ? 'active' : undefined} onClick={this._onContact} label="Contact" />;
+      viewHeader = (
+        <Box direction="row" responsive={false} align="center" pad={{between: "small"}}>
+          <Title onClick={this.props.onClose} responsive={false}>
+            <Logo />
+          </Title>
+          <Heading tag="h3" strong={true}>{viewLabel}</Heading>
+        </Box>
+      );
     }
 
     return (
       <Split flex="both" separator={true}>
-        <Article>
-          <Header large={true} pad={{horizontal: "medium"}} separator="bottom"
-            justify="between">
-            <Title onClick={this.props.onClose} responsive={false}>
-              <Logo />
-              {appTitle}
-            </Title>
-            <Button icon={<SearchIcon />} onClick={this.props.onClose} />
-          </Header>
-          <Box direction="row" pad="none" align="start">
-            <Box pad="medium">
-              <img className="avatar" src={person.hpPictureURI || 'img/no-picture.png'} alt="picture" />
-            </Box>
-            <Section pad="medium" className="flex">
-              <Header tag="h1">
-                <span>{person.cn}</span>
-              </Header>
-              <Paragraph margin="none">{personTitle}</Paragraph>
-              <Box pad={{vertical: "medium"}}>
-                <h2><a href={"mailto:" + person.uid}>{person.uid}</a></h2>
-                <h3><a href={"tel:" + person.telephoneNumber}>{person.telephoneNumber}</a></h3>
-                <h3>{this.state.currentPersonTime}</h3>
-              </Box>
-            </Section>
-          </Box>
-          <Map title={person.o}
-            street={person.street} city={person.l} state={person.st}
-            postalCode={person.postalCode} country={person.co} />
-        </Article>
+        {contact}
         <Sidebar>
           <Header large={true} pad={{horizontal: "medium"}} justify="between" separator="bottom">
-            <h3>{viewLabel}</h3>
+            {viewHeader}
             <Menu label="Menu" dropAlign={{right: 'right'}}>
+              {contactAnchor}
               <Anchor className={this.state.view === 'organization' ? 'active' : undefined} onClick={this._onOrganization}>
                 <FormattedMessage id="Organization" defaultMessage="Organization" />
               </Anchor>

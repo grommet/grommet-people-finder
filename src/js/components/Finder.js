@@ -47,12 +47,9 @@ export default class Finder extends Component {
       colorIndex = "neutral-1-a";
       footer = (
         <Footer float={true} colorIndex="grey-3-a"
-          pad={{vertical: "small", horizontal: "medium"}}>
+          pad={{vertical: "small", horizontal: "medium", between: "medium"}} wrap={true} direction="row" justify="between">
           <img src="img/hpesm_pri_grn_rev_rgb.svg" alt="logo" className="logo" />
-          <Box className="flex" align="end">
-            <Paragraph size="small">© Copyright
-              2015 Hewlett Packard Enterprise Development LP</Paragraph>
-          </Box>
+          <Paragraph size="small">{`\u00a9 ${new Date().getFullYear()}  Hewlett Packard Enterprise Development LP`}</Paragraph>
         </Footer>
       );
     }
@@ -71,18 +68,22 @@ export default class Finder extends Component {
         <Header key="header" large={true}
           pad={{horizontal: "medium", between: "small"}}
           float={this.props.initial}
-          colorIndex={colorIndex} splash={this.props.initial} responsive={false}>
+          colorIndex={colorIndex} splash={this.props.initial} 
+          responsive={false} justify="between">
           <Title>
             <Logo reverse={true} />
             {title}
           </Title>
-          <Search ref="search" inline={true} className="flex"
-            placeHolder="Search"
-            defaultValue={this.props.searchText}
-            onChange={this.props.onSearch} />
-          <Menu inline={false} dropColorIndex={colorIndex} dropAlign={{right: "right"}}>
-            {scopeAnchors}
-          </Menu>
+          <Box className="flex" direction="row" responsive={false}
+            align="center" justify="end">
+            <Search ref="search" inline={true} className="flex"
+              placeHolder="Search"
+              defaultValue={this.props.searchText}
+              onChange={this.props.onSearch} />
+            <Menu inline={false} dropColorIndex={colorIndex} dropAlign={{right: "right"}}>
+              {scopeAnchors}
+            </Menu>
+          </Box>
         </Header>
         {this.props.children}
         {footer}

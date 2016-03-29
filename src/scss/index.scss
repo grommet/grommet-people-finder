@@ -4,7 +4,7 @@
 
 #map {
   width: 100%;
-  height: calc(100vh - 412px);
+  height: calc(100vh - 444px);
 
   .leaflet-popup-content-wrapper {
     border-radius: $border-radius;
@@ -15,4 +15,6 @@
 // and only down until size of small icons
 .avatar {
   min-width: 48px;
+  width: 100%;
+  max-width: 150px;
 }

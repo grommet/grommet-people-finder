@@ -19,9 +19,10 @@ export default class PeopleFinder extends Component {
 
   constructor () {
     super();
+    this._popState = this._popState.bind(this);
     this._onSearchText = this._onSearchText.bind(this);
-    this._onSelect = this._onSelect.bind(this);
     this._onScope = this._onScope.bind(this);
+    this._onSelect = this._onSelect.bind(this);
     this._onCloseItem = this._onCloseItem.bind(this);
     this.state = { searchText: '', scope: config.scopes.people, initial: true };
   }

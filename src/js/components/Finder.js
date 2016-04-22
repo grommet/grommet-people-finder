@@ -16,6 +16,12 @@ import config from '../config';
 
 export default class Finder extends Component {
 
+  constructor () {
+    super();
+    this._onScope = this._onScope.bind(this);
+    this._onSearchDOMChange = this._onSearchDOMChange.bind(this);
+  }
+
   componentDidMount () {
     this.refs.search.focus();
   }
@@ -26,6 +32,10 @@ export default class Finder extends Component {
 
   _onScope (scope) {
     this.props.onScope(scope);
+  }
+
+  _onSearchDOMChange (event) {
+    this.props.onSearch(event.target.value);
   }
 
   render () {
@@ -68,7 +78,7 @@ export default class Finder extends Component {
         <Header key="header" large={true}
           pad={{horizontal: "medium", between: "small"}}
           float={this.props.initial}
-          colorIndex={colorIndex} splash={this.props.initial} 
+          colorIndex={colorIndex} splash={this.props.initial}
           responsive={false} justify="between">
           <Title>
             <Logo reverse={true} />
@@ -79,7 +89,7 @@ export default class Finder extends Component {
             <Search ref="search" inline={true} className="flex"
               placeHolder="Search"
               defaultValue={this.props.searchText}
-              onChange={this.props.onSearch} />
+              onDOMChange={this._onSearchDOMChange} />
             <Menu inline={false} dropColorIndex={colorIndex} dropAlign={{right: "right"}}>
               {scopeAnchors}
             </Menu>

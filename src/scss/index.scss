@@ -3,11 +3,14 @@
 @import '~grommet/scss/hpe/index';
 
 #map {
-  width: 100%;
-  height: calc(100vh - 444px);
-
   .leaflet-popup-content-wrapper {
     border-radius: $border-radius;
+  }
+
+  .leaflet-control-container {
+    a:not(.anchor) {
+      text-decoration: none;
+    }
   }
 }
 

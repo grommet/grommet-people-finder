@@ -6,7 +6,6 @@ import Header from 'grommet/components/Header';
 import Menu from 'grommet/components/Menu';
 import Anchor from 'grommet/components/Anchor';
 import Footer from 'grommet/components/Footer';
-import Title from 'grommet/components/Title';
 import Search from 'grommet/components/Search';
 import Section from 'grommet/components/Section';
 import Paragraph from 'grommet/components/Paragraph';
@@ -39,12 +38,6 @@ export default class Finder extends Component {
   }
 
   render () {
-
-    const titleLabel = `${this.props.scope.label} Finder`;
-    const title = (
-      <FormattedMessage id={titleLabel} defaultMessage={titleLabel} />
-    );
-
     let texture;
     let colorIndex = this.props.scope.colorIndex;
     let footer;
@@ -80,19 +73,16 @@ export default class Finder extends Component {
           float={this.props.initial}
           colorIndex={colorIndex} splash={this.props.initial}
           responsive={false} justify="between">
-          <Title>
-            <Logo reverse={true} />
-            {title}
-          </Title>
+          <Menu inline={false} icon={<Logo reverse={true} />}
+            dropColorIndex={colorIndex}>
+            {scopeAnchors}
+          </Menu>
           <Box className="flex" direction="row" responsive={false}
             align="center" justify="end">
-            <Search ref="search" inline={true} className="flex"
+            <Search ref="search" inline={true} responsive={false} className="flex"
               placeHolder="Search"
               defaultValue={this.props.searchText}
               onDOMChange={this._onSearchDOMChange} />
-            <Menu inline={false} dropColorIndex={colorIndex} dropAlign={{right: "right"}}>
-              {scopeAnchors}
-            </Menu>
           </Box>
         </Header>
         {this.props.children}

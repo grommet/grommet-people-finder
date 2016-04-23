@@ -1,11 +1,13 @@
 // (C) Copyright 2014-2016 Hewlett Packard Enterprise Development LP
 
 import React, { Component, PropTypes } from 'react';
-import Article from 'grommet/components/Article';
+// import Article from 'grommet/components/Article';
 import Box from 'grommet/components/Box';
 import Label from 'grommet/components/Label';
 import List from 'grommet/components/List';
-import Header from 'grommet/components/Header';
+import Heading from 'grommet/components/Heading';
+import Image from 'grommet/components/Image';
+import UserIcon from 'grommet/components/icons/base/User';
 import Rest from 'grommet/utils/Rest';
 import PersonListItem from './PersonListItem';
 import BusyListItem from './BusyListItem';
@@ -107,47 +109,58 @@ export default class Organization extends Component {
 
   render () {
     const person = this.props.person;
-    let people;
+    let managers;
     if (person.uid) {
       if (this.state.busy) {
-        people = [<BusyListItem key="busy" />];
+        managers = [<BusyListItem key="busy" />];
       } else {
-        people = this.state.managers.map(item => (
+        managers = this.state.managers.map(item => (
           <PersonListItem key={item.uid} item={item}
             onClick={this._onSelect.bind(this, item)} />
         ));
       }
-      people.push(<PersonListItem key={person.uid} item={person} />);
+      // managers.push(<PersonListItem key={person.uid} item={person} colorIndex="light-2"/>);
     }
-    let team;
+    let image;
+    if (person.hpPictureThumbnailURI) {
+      image = <Image size="thumb" mask={true} src={person.hpPictureThumbnailURI} />;
+    } else {
+      image = <UserIcon size="large" />;
+    }
+    let label, team;
     if (this.state.team.length > 0) {
+      label = (
+        <Heading tag="h4" margin="none">
+          <strong>{`${person.givenName}'s Team`}</strong>
+        </Heading>
+      );
       const members = this.state.team.map((item, index) => (
         <PersonListItem key={item.uid} item={item} first={index === 0}
           onClick={this._onSelect.bind(this, item)} />
       ));
-      team = [
-        <Header key="label" pad="medium">
-          <h4>{`${person.givenName}'s Team`}</h4>
-        </Header>,
-        <List key="team">{members}</List>
-      ];
+      team = <List key="team">{members}</List>;
     } else {
       if (!this.state.busy) {
-        team = (
-          <Box pad="medium">
-            <Label className="secondary">{`${person.givenName} has no direct reports.`}</Label>
-          </Box>
+        label = (
+          <Label className="secondary" margin="none">
+            {`${person.givenName} has no direct reports.`}
+          </Label>
         );
       }
     }
 
     return (
-      <Article>
+      <div>
         <List>
-          {people}
+          {managers}
         </List>
+        <Box key="header" pad={{vertical: "medium", between: 'medium'}}
+          colorIndex="light-1" justify="center" align="center">
+          {image}
+          {label}
+        </Box>
         {team}
-      </Article>
+      </div>
     );
   }
 

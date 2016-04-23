@@ -17,6 +17,7 @@ import Sidebar from 'grommet/components/Sidebar';
 import Split from 'grommet/components/Split';
 import Title from 'grommet/components/Title';
 import SearchIcon from 'grommet/components/icons/base/Search';
+import UserIcon from 'grommet/components/icons/base/User';
 import Details from './Details';
 import Logo from './Logo';
 import Map from './Map';
@@ -240,35 +241,53 @@ export default class Person extends Component {
     let boxDirection = "row";
     let contactPad = "none";
     let contactContentsPad = "medium";
-    let contactInfoPad = { vertical: "medium" };
 
     if (this.state.responsive) {
       boxDirection = "column";
       contactPad = { vertical: "medium", between: "medium" };
       contactContentsPad = { horizontal: "medium" };
-      contactInfoPad = "none";
+    }
+
+    let phone;
+    if (! person.telephoneNumber || '+1' === person.telephoneNumber) {
+      phone = <span className="secondary">no phone #</span>;
+    } else {
+      phone = <a href={"tel:" + person.telephoneNumber}>{person.telephoneNumber}</a>;
+    }
+
+    let image;
+    if (person.hpPictureURI) {
+      image = (
+        <img className="avatar" src={person.hpPictureURI || 'img/no-picture.png'}
+          alt="picture" />
+      );
+    } else {
+      image = <UserIcon size="large" />;
     }
 
     contact = (
       <Article>
         {header}
-        <Box direction={boxDirection} pad={contactPad} align="start">
+        <Box direction={boxDirection} pad={contactPad} align="start"
+          flex={false}>
           <Box pad={contactContentsPad}>
-            <img className="avatar" src={person.hpPictureURI || 'img/no-picture.png'} alt="picture" />
+            {image}
           </Box>
           <Section pad={contactContentsPad} className="flex">
-            <Header tag="h1">
-              <span>{person.cn}</span>
-            </Header>
+            <Heading tag="h1">
+              {person.cn}
+            </Heading>
             <Paragraph margin="none">{personTitle}</Paragraph>
-            <Box pad={contactInfoPad}>
-              <h2><a href={"mailto:" + person.uid}>{person.uid}</a></h2>
-              <h3><a href={"tel:" + person.telephoneNumber}>{person.telephoneNumber}</a></h3>
-              <h3>{this.state.currentPersonTime}</h3>
-            </Box>
+            <Paragraph size="large" margin="small">
+              <a href={"mailto:" + person.uid}>{person.uid}</a>
+            </Paragraph>
+            <Paragraph size="large" margin="small">
+              {phone}
+            </Paragraph>
+            <h3>{this.state.currentPersonTime}</h3>
           </Section>
         </Box>
-        <Map title={person.o}
+        <Map title={person.o} className="flex"
           street={person.street} city={person.l} state={person.st}
           postalCode={person.postalCode} country={person.co} />
       </Article>

@@ -21,7 +21,8 @@ export default class Map extends Component {
       const mapElement = this.refs.map;
       const options = {
         touchZoom: false,
-        scrollWheelZoom: false
+        scrollWheelZoom: false,
+        zoom: 5
       };
       const map = Leaflet.map(mapElement, options);
       this.setState({map: map});
@@ -49,17 +50,17 @@ export default class Map extends Component {
 
   _setMap (mapSize) {
     const map = this.state.map;
-    map.setView([this.state.latitude, this.state.longitude], mapSize || 14);
-    Leaflet.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    map.setView([this.state.latitude, this.state.longitude], 5); //mapSize || 14);
+    Leaflet.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+      attribution: '&copy;OpenStreetMap, &copy;CartoDB'
     }).addTo(map);
     const circle = Leaflet.circleMarker([this.state.latitude, this.state.longitude], {
       color: '#FF8D6D',
       opacity: 0.8,
       fillOpacity: 0.8
     }).addTo(map);
-    const address = '<h5>' + this.props.title + '</h5>' + this._renderAddress().join('<br/>');
+    const address = `<h5><strong>${this.props.title}</strong></h5>
+      ${this._renderAddress().join('<br/>')}`;
     circle.bindPopup(address).openPopup();
   }
 
@@ -143,7 +144,7 @@ export default class Map extends Component {
       );
     }
     return (
-      <div ref="map" id="map">
+      <div ref="map" id="map" className={this.props.className}>
         {address}
       </div>
     );

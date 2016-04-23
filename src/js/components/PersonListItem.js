@@ -4,17 +4,24 @@ import React, { PropTypes } from 'react';
 import ListItem from 'grommet/components/ListItem';
 import Box from 'grommet/components/Box';
 import Image from 'grommet/components/Image';
+import UserIcon from 'grommet/components/icons/base/User';
 
 const PersonListItem = (props) => {
   const { item, first } = props;
+  let thumbnail;
+  if (item.hpPictureThumbnailURI) {
+    thumbnail = <Image size="thumb" mask={true} src={item.hpPictureThumbnailURI} />;
+  } else {
+    thumbnail = <UserIcon size="large" />;
+  }
   return (
     <ListItem justify="between" onClick={props.onClick}
       pad={{horizontal: 'medium', vertical: 'small', between: 'medium'}}
-      separator={first ? 'horizontal' : 'bottom'}>
+      separator={first ? 'horizontal' : 'bottom'}
+      colorIndex={props.colorIndex}>
       <Box pad={{between: 'small'}} direction="row" align="center"
         responsive={false} className="flex">
-        <Image size="thumb"
-          src={item.hpPictureThumbnailURI ||  "img/no-picture.png"} />
+        {thumbnail}
         {item.cn}
       </Box>
       <span className="secondary">{item.hpBusinessUnit}</span>
@@ -23,6 +30,7 @@ const PersonListItem = (props) => {
 };
 
 PersonListItem.propTypes = {
+  colorIndex: PropTypes.string,
   first: PropTypes.bool,
   item: PropTypes.object,
   onClick: PropTypes.func

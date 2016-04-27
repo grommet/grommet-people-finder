@@ -1,7 +1,7 @@
 // (C) Copyright 2014-2016 Hewlett Packard Enterprise Development LP
 
 import React, { Component } from 'react';
-import { FormattedMessage } from 'react-intl';
+// import { FormattedMessage } from 'react-intl';
 import App from 'grommet/components/App';
 import Finder from './Finder';
 import DirectoryList from './DirectoryList';
@@ -24,7 +24,11 @@ export default class PeopleFinder extends Component {
     this._onScope = this._onScope.bind(this);
     this._onSelect = this._onSelect.bind(this);
     this._onCloseItem = this._onCloseItem.bind(this);
-    this.state = { searchText: '', scope: config.scopes.people, initial: true };
+    this.state = {
+      initial: true,
+      searchText: '',
+      scope: config.scopes.people
+    };
   }
 
   componentDidMount () {
@@ -34,13 +38,23 @@ export default class PeopleFinder extends Component {
     const id = params.id || null;
 
     this.setState({
+      id: id,
       initial: (! searchText),
       scope: scope,
       searchText: searchText,
-      id: id
+      title: this._title(scope)
     });
 
     window.onpopstate = this._popState;
+  }
+
+  _title (scope, item) {
+    let title = `${scope.label} Finder`;
+    // title = <FormattedMessage id={title} defaultMessage={title} />;
+    if (item) {
+      title = `${item.cn} - ${title}`;
+    }
+    return title;
   }
 
   _paramsFromQuery (query) {
@@ -54,34 +68,32 @@ export default class PeopleFinder extends Component {
 
   _pushState () {
     let url = window.location.href.split('?')[0] + '?';
-    url += 'scope=' + encodeURIComponent(this.state.scope.ou);
-    const labelFormatted = `${this.state.scope.label} Finder`;
-    let label = (
-      <FormattedMessage id={labelFormatted} defaultMessage={labelFormatted} />
-    );
+    url += `scope=${encodeURIComponent(this.state.scope.ou)}`;
     if (this.state.searchText) {
-      url += '&search=' + encodeURIComponent(this.state.searchText);
-      label = this.state.searchText;
+      url += `&search=${encodeURIComponent(this.state.searchText)}`;
     }
     if (this.state.id) {
-      url += '&id=' + encodeURIComponent(this.state.id);
-      label = this.state.id;
+      url += `&id=${encodeURIComponent(this.state.id)}`;
     }
     const state = {
+      id: this.state.id,
       ou: this.state.scope.ou,
       searchText: this.state.searchText,
-      id: this.state.id
+      title: this.state.title
     };
-    window.history.pushState(state, label, url);
+    window.history.pushState(state, this.state.title, url);
+    document.title = this.state.title;
   }
 
   _popState (event) {
     if (event.state) {
       this.setState({
+        id: event.state.id,
         scope: config.scopes[event.state.ou],
         searchText: event.state.searchText,
-        id: event.state.id
+        title: event.state.title
       });
+      document.title = event.state.title;
     }
   }
 
@@ -90,16 +102,26 @@ export default class PeopleFinder extends Component {
   }
 
   _onScope (scope) {
-    this.setState({scope: scope}, this._pushState);
+    this.setState({
+      scope: scope,
+      title: this._title(scope)
+    }, this._pushState);
   }
 
   _onSelect (item, scopeArg) {
     const scope = scopeArg || this.state.scope;
-    this.setState({id: item[scope.id], scope: scope}, this._pushState);
+    this.setState({
+      id: item[scope.id],
+      scope: scope,
+      title: this._title(scope, item)
+    }, this._pushState);
   }
 
   _onCloseItem () {
-    this.setState({id: null}, this._pushState);
+    this.setState({
+      id: null,
+      title: this._title(this.state.scope)
+    }, this._pushState);
   }
 
   render () {

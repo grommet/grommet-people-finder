@@ -284,7 +284,9 @@ export default class Person extends Component {
             <Paragraph size="large" margin="small">
               {phone}
             </Paragraph>
-            <h3>{this.state.currentPersonTime}</h3>
+            <Paragraph size="large" margin="small">
+              {this.state.currentPersonTime}
+            </Paragraph>
           </Section>
         </Box>
         <Map title={person.o} className="flex"

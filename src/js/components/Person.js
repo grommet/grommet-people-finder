@@ -250,9 +250,9 @@ export default class Person extends Component {
 
     let phone;
     if (! person.telephoneNumber || '+1' === person.telephoneNumber) {
-      phone = <span className="secondary">no phone #</span>;
+      phone = <span className="secondary">Phone number not available.</span>;
     } else {
-      phone = <a href={"tel:" + person.telephoneNumber}>{person.telephoneNumber}</a>;
+      phone = <Anchor href={"tel:" + person.telephoneNumber}>{person.telephoneNumber}</Anchor>;
     }
 
     let image;
@@ -279,7 +279,7 @@ export default class Person extends Component {
             </Heading>
             <Paragraph margin="none">{personTitle}</Paragraph>
             <Paragraph size="large" margin="small">
-              <a href={"mailto:" + person.uid}>{person.uid}</a>
+              <Anchor href={"mailto:" + person.uid}>{person.uid}</Anchor>
             </Paragraph>
             <Paragraph size="large" margin="small">
               {phone}

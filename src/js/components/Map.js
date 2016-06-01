@@ -25,6 +25,17 @@ export default class Map extends Component {
         zoom: 5
       };
       const map = Leaflet.map(mapElement, options);
+
+      // vertically centering map popup
+      if (!this._onPopupOpen) {
+        this._onPopupOpen = (event) => {
+          let px = map.project(event.popup._latlng);
+          px.y -= event.popup._container.clientHeight / 2;
+          map.panTo(map.unproject(px), {animate: true});
+        };
+        map.on('popupopen', this._onPopupOpen);
+      }
+
       this.setState({map: map});
     }
 
@@ -46,6 +57,13 @@ export default class Map extends Component {
         this._setMap();
       }
     });
+  }
+
+  componentWillUnmount () {
+    const map = this.state.map;
+    if (this._onPopupOpen) {
+      map.off('popupopen', this._onPopupOpen);
+    }
   }
 
   _setMap (mapSize) {

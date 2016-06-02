@@ -8,7 +8,7 @@ import List from 'grommet/components/List';
 import Heading from 'grommet/components/Heading';
 import Image from 'grommet/components/Image';
 import UserIcon from 'grommet/components/icons/base/User';
-import Rest from 'grommet/utils/Rest';
+import { headers, buildQuery, processStatus } from 'grommet/utils/Rest';
 import PersonListItem from './PersonListItem';
 import BusyListItem from './BusyListItem';
 import config from '../config';
@@ -33,56 +33,54 @@ export default class Organization extends Component {
     }
   }
 
-  _onManagerResponse (err, res) {
-    if (err) {
-      this.setState({staff: [], error: err});
-    } else if (res.ok) {
-      const result = res.body;
-      const manager = result[0];
-      // might not match if domain names are different
-      if (manager) {
-        const managers = this.state.managers;
-        managers.unshift(manager);
-        this.setState({managers: managers, error: null});
-        // 20 limit is to guard against bugs in the code
-        if (manager.manager && manager.manager !== manager.dn && managers.length <= 20) {
-          this._getManager(manager.manager);
-        } else {
-          this.setState({busy: false});
-        }
+  _onManagerResponse (result) {
+    const manager = result[0];
+    // might not match if domain names are different
+    if (manager) {
+      const managers = this.state.managers;
+      managers.unshift(manager);
+      this.setState({managers: managers, error: null});
+      // 20 limit is to guard against bugs in the code
+      if (manager.manager && manager.manager !== manager.dn && managers.length <= 20) {
+        this._getManager(manager.manager);
       } else {
-        console.log('Unknown manager', res.req.url);
         this.setState({busy: false});
       }
+    } else {
+      console.log('Unknown manager', res.req.url);
+      this.setState({busy: false});
     }
   }
 
   _getManager (managerDn) {
     const params = {
-      url: encodeURIComponent(config.ldap_base_url),
+      url: config.ldap_base_url,
       base: managerDn,
       scope: 'sub'
     };
-    Rest.get('/ldap/', params).end(this._onManagerResponse);
+    const options = { method: 'GET', headers: headers };
+    const query = buildQuery(params);
+    fetch(`/ldap/${query}`, options)
+    .then(processStatus)
+    .then(response => response.json())
+    .then(this._onManagerResponse)
+    .catch(error => this.setState({staff: [], error: error}));
   }
 
-  _onTeamResponse (err, res) {
-    if (err) {
-      this.setState({staff: [], error: err});
-    } else if (res.ok) {
-      const result = res.body.sort(function (p1, p2) {
-        const n1 = p1.cn.toLowerCase();
-        const n2 = p2.cn.toLowerCase();
-        if (n1 > n2) {
-          return 1;
-        }
-        if (n1 < n2) {
-          return -1;
-        }
-        return 0;
-      });
-      this.setState({team: result, error: null});
-    }
+  _onTeamResponse (result) {
+    // sort on common name
+    result = result.sort(function (p1, p2) {
+      const n1 = p1.cn.toLowerCase();
+      const n2 = p2.cn.toLowerCase();
+      if (n1 > n2) {
+        return 1;
+      }
+      if (n1 < n2) {
+        return -1;
+      }
+      return 0;
+    });
+    this.setState({team: result, error: null});
   }
 
   _getRelatedDetails (props) {
@@ -91,13 +89,19 @@ export default class Organization extends Component {
       this.setState({busy: true});
 
       const params = {
-        url: encodeURIComponent(config.ldap_base_url),
-        base: encodeURIComponent(`ou=${this.state.scope.ou},o=${config.organization}`),
+        url: config.ldap_base_url,
+        base: `ou=${this.state.scope.ou},o=${config.organization}`,
         scope: 'sub',
-        filter: encodeURIComponent(`(&(hpStatus=Active)(manager=${props.person.dn}))`),
+        filter: `(&(hpStatus=Active)(manager=${props.person.dn}))`,
         attributes: this.state.scope.attributes
       };
-      Rest.get('/ldap/', params).end(this._onTeamResponse);
+      const options = { method: 'GET', headers: headers };
+      const query = buildQuery(params);
+      fetch(`/ldap/${query}`, options)
+      .then(processStatus)
+      .then(response => response.json())
+      .then(this._onTeamResponse)
+      .catch(error => this.setState({staff: [], error: error}));
 
       this._getManager(props.person.manager);
     }

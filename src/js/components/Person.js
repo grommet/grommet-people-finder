@@ -3,7 +3,7 @@
 import React, { Component, PropTypes } from 'react';
 import { FormattedMessage } from 'react-intl';
 import Responsive from 'grommet/utils/Responsive';
-import Rest from 'grommet/utils/Rest';
+import { headers, buildQuery, processStatus } from 'grommet/utils/Rest';
 import Anchor from 'grommet/components/Anchor';
 import Article from 'grommet/components/Article';
 import Box from 'grommet/components/Box';
@@ -37,7 +37,6 @@ export default class Person extends Component {
     this._onGroups = this._onGroups.bind(this);
     this._onOrganization = this._onOrganization.bind(this);
     this._onContact = this._onContact.bind(this);
-    this._onLocationResponse = this._onLocationResponse.bind(this);
     this.state = {
       view: 'organization',
       person: {},
@@ -73,49 +72,42 @@ export default class Person extends Component {
     this.setState({responsive: responsive, view: view});
   }
 
-  _onPersonResponse (err, res) {
-    if (err) {
-      this.setState({person: {}, error: err});
-    } else if (res.ok) {
-      const result = res.body;
-      const person = result[0];
-      let view = this.state.view;
-
-      if (this.state.responsive) {
-        view = 'contact';
-      }
-
-      this._getLocation(person.hpWorkLocation);
-      this.setState({person: person, error: null, view: view});
-    }
+  _onPersonResponse (result) {
+    const person = result[0];
+    const view = this.state.responsive ? 'contact' : this.state.view;
+    this._getLocation(person.hpWorkLocation);
+    this.setState({person: person, error: null, view: view});
   }
 
   _getPerson (id) {
     const params = {
-      url: encodeURIComponent(config.ldap_base_url),
-      base: encodeURIComponent('ou=' + this.state.scope.ou + ',o=' + config.organization),
+      url: config.ldap_base_url,
+      base: 'ou=' + this.state.scope.ou + ',o=' + config.organization,
       scope: 'sub',
       filter: '(uid=' + id + ')'
     };
-    Rest.get('/ldap/', params).end(this._onPersonResponse);
-  }
-
-  _onLocationResponse (err, res) {
-    if (err) {
-      this.setState({error: err});
-    } else if (res.ok) {
-      const result = res.body;
-      this._getTimezone(result[0]);
-    }
+    const options = { method: 'GET', headers: headers };
+    const query = buildQuery(params);
+    fetch(`/ldap/${query}`, options)
+    .then(processStatus)
+    .then(response => response.json())
+    .then(this._onPersonResponse)
+    .catch(error => this.setState({person: {}, error: error}));
   }
 
   _getLocation (workLocation) {
     const params = {
-      url: encodeURIComponent(config.ldap_base_url),
+      url: config.ldap_base_url,
       base: workLocation,
       scope: 'sub'
     };
-    Rest.get('/ldap/', params).end(this._onLocationResponse);
+    const options = { method: 'GET', headers: headers };
+    const query = buildQuery(params);
+    fetch(`/ldap/${query}`, options)
+    .then(processStatus)
+    .then(response => response.json())
+    .then(result => this._getTimezone(result[0]))
+    .catch(error => this.setState({error: error}));
   }
 
   _onDetails () {

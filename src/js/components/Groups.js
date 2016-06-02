@@ -24,9 +24,9 @@ export default class Groups extends Component {
     if (searchText) {
       if (searchText[0] === '(') {
         // assume this is already a formal LDAP filter
-        filter = encodeURIComponent(searchText);
+        filter = searchText;
       } else {
-        filter = encodeURIComponent(`(cn=*${searchText}*)`);
+        filter = `(cn=*${searchText}*)`;
       }
     }
     return filter;

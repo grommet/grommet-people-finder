@@ -2,7 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import { FormattedMessage } from 'react-intl';
-import Rest from 'grommet/utils/Rest';
+import { headers, buildQuery, processStatus } from 'grommet/utils/Rest';
 import Header from 'grommet/components/Header';
 import Title from 'grommet/components/Title';
 import Article from 'grommet/components/Article';
@@ -20,7 +20,6 @@ export default class Group extends Component {
   constructor () {
     super();
     this._onGroupResponse = this._onGroupResponse.bind(this);
-    this._onOwnersResponse = this._onOwnersResponse.bind(this);
     this._onSelectOwner = this._onSelectOwner.bind(this);
     this.state = {
       group: {},
@@ -40,48 +39,46 @@ export default class Group extends Component {
     }
   }
 
-  _onOwnersResponse (err, res) {
-    if (err) {
-      this.setState({owners: [], error: err, busy: false});
-    } else if (res.ok) {
-      const result = res.body;
-      this.setState({owners: result, error: null, busy: false});
-    }
-  }
+  _onGroupResponse (result) {
+    const group = result[0];
+    this.setState({group: group, owners: [], error: null});
 
-  _onGroupResponse (err, res) {
-    if (err) {
-      this.setState({group: {}, error: err});
-    } else if (res.ok) {
-      const group = res.body[0];
-      this.setState({group: group, owners: [], error: null});
-
-      if (group.owner) {
-        this.setState({busy: true});
-        const owners = Array.isArray(group.owner) ? group.owner : [group.owner];
-        const filter =
-          `(|${owners.map(o => (`(${o.split(',')[0]})`)).join('')})`;
-        const params = {
-          url: encodeURIComponent(config.ldap_base_url),
-          base: encodeURIComponent(
-            `ou=${this.state.peopleScope.ou},o=${config.organization}`),
-          scope: 'sub',
-          filter: encodeURIComponent(filter),
-          attributes: this.state.peopleScope.attributes
-        };
-        Rest.get('/ldap/', params).end(this._onOwnersResponse);
-      }
+    if (group.owner) {
+      this.setState({busy: true});
+      const owners = Array.isArray(group.owner) ? group.owner : [group.owner];
+      const filter =
+        `(|${owners.map(o => (`(${o.split(',')[0]})`)).join('')})`;
+      const params = {
+        url: config.ldap_base_url,
+        base: `ou=${this.state.peopleScope.ou},o=${config.organization}`,
+        scope: 'sub',
+        filter: filter,
+        attributes: this.state.peopleScope.attributes
+      };
+      const options = { method: 'GET', headers: headers };
+      const query = buildQuery(params);
+      fetch(`/ldap/${query}`, options)
+      .then(processStatus)
+      .then(response => response.json())
+      .then(result => this.setState({owners: result, error: null, busy: false}))
+      .catch(error => this.setState({owners: [], error: error, busy: false}));
     }
   }
 
   _getGroup (id) {
     const params = {
-      url: encodeURIComponent(config.ldap_base_url),
-      base: encodeURIComponent(`ou=${this.state.scope.ou},o=${config.organization}`),
+      url: config.ldap_base_url,
+      base: `ou=${this.state.scope.ou},o=${config.organization}`,
       scope: 'sub',
       filter: `(cn=${id})`
     };
-    Rest.get('/ldap/', params).end(this._onGroupResponse);
+    const options = { method: 'GET', headers: headers };
+    const query = buildQuery(params);
+    fetch(`/ldap/${query}`, options)
+    .then(processStatus)
+    .then(response => response.json())
+    .then(this._onGroupResponse)
+    .catch(error => this.setState({group: {}, error: error}));
   }
 
   _onSelectOwner (owner) {

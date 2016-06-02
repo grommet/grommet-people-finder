@@ -24,11 +24,10 @@ export default class Locations extends Component {
     if (searchText) {
       if (searchText[0] === '(') {
         // assume this is already a formal LDAP filter
-        filter = encodeURIComponent(searchText);
+        filter = searchText;
       } else {
         searchText = searchText.replace(/\s+/g, '*');
-        filter = encodeURIComponent(
-          `(|(buildingName=*${searchText}*)(l=*${searchText}*))`);
+        filter = `(|(buildingName=*${searchText}*)(l=*${searchText}*))`;
       }
     }
     return filter;

@@ -2,7 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import { FormattedMessage } from 'react-intl';
-import Rest from 'grommet/utils/Rest';
+import { headers, buildQuery, processStatus } from 'grommet/utils/Rest';
 import List from 'grommet/components/List';
 import Footer from 'grommet/components/Footer';
 import PersonListItem from './PersonListItem';
@@ -24,6 +24,7 @@ export default class DirectoryList extends Component {
     super();
     this._onSelect = this._onSelect.bind(this);
     this._search = this._search.bind(this);
+    this._onSearchResponse = this._onSearchResponse.bind(this);
     this.state = {
       busy: false,
       results: [],
@@ -46,15 +47,13 @@ export default class DirectoryList extends Component {
     clearTimeout(this._searchTimer);
   }
 
-  _onSearchResponse (scope, err, res) {
-    if (err) {
-      this.setState({results: [], error: err, busy: false});
-    } else if (res.ok && this.props.searchText) {
-      // don't keep result if we don't have search text anymore
-      const state = {error: null, busy: false, summaries: this.state.summaries};
+  _onSearchResponse (scope, response) {
+    // don't keep result if we don't have search text anymore
+    if (this.props.searchText) {
+      let state = {error: null, busy: false, summaries: this.state.summaries};
       if (scope.ou === this.props.scope.ou) {
-        state.results = res.body;
-      } else if (res.body.length > 0) {
+        state.results = response;
+      } else if (response.length > 0) {
         state.summaries[scope.ou] = {
           scope: scope,
           searchText: this.props.searchText
@@ -69,33 +68,40 @@ export default class DirectoryList extends Component {
     let filter;
     if (searchText[0] === '(') {
       // assume this is already a formal LDAP filter
-      filter = encodeURIComponent(searchText);
+      filter = searchText;
     } else {
-      filter = encodeURIComponent(this.props.scope.filterForSearch(searchText));
+      filter = this.props.scope.filterForSearch(searchText);
     }
 
-    const params = {
-      url: encodeURIComponent(config.ldap_base_url),
-      base: encodeURIComponent(`ou=${this.props.scope.ou},o=${config.organization}`),
+    let params = {
+      url: config.ldap_base_url,
+      base: `ou=${this.props.scope.ou},o=${config.organization}`,
       scope: 'sub',
       filter: filter,
       attributes: this.props.scope.attributes
     };
-    Rest.get('/ldap/', params).end(function (err, res) {
-      this._onSearchResponse(this.props.scope, err, res);
-    }.bind(this));
+    const options = { method: 'GET', headers: headers };
+    const query = buildQuery(params);
+    fetch(`/ldap/${query}`, options)
+    .then(processStatus)
+    .then(response => response.json())
+    .then(response => this._onSearchResponse(this.props.scope, response))
+    .catch(error => this.setState({results: [], error: error, busy: false}));
 
     // get other scopes lazily
     this._searchTimer = setTimeout(function () {
       Object.keys(config.scopes).map(function (key) {
         var scope = config.scopes[key];
         if (scope.ou !== this.props.scope.ou) {
-          params.base = encodeURIComponent(`ou=${scope.ou},o=${config.organization}`);
-          params.filter = encodeURIComponent(scope.filterForSearch(searchText));
+          params.base = `ou=${scope.ou},o=${config.organization}`;
+          params.filter = scope.filterForSearch(searchText);
           params.attributes = scope.attributes;
-          Rest.get('/ldap/', params).end(function (err, res) {
-            this._onSearchResponse(scope, err, res);
-          }.bind(this));
+          const query = buildQuery(params);
+          fetch(`/ldap/${query}`, options)
+          .then(processStatus)
+          .then(response => response.json())
+          .then(response => this._onSearchResponse(scope, response))
+          .catch(error => this.setState({error: error, busy: false}));
         }
       }.bind(this));
     }.bind(this), 200);
@@ -123,7 +129,12 @@ export default class DirectoryList extends Component {
   render () {
     const { searchText, scope } = this.props;
     const { results, busy } = this.state;
-    let items, empty, first = false;
+    let items, empty, first, error = false;
+
+    if (this.state.error) {
+      error = <div>{this.state.error}</div>;
+    }
+
     if (busy) {
       items = <BusyListItem />;
     } else if (searchText && results.length === 0) {
@@ -163,6 +174,7 @@ export default class DirectoryList extends Component {
 
     return (
       <div>
+        {error}
         <List key="results" emptyIndicator={empty}>
           {items}
           {summaryItems}

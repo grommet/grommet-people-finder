@@ -1,7 +1,7 @@
 // (C) Copyright 2014-2016 Hewlett Packard Enterprise Development LP
 
 import React, { Component, PropTypes } from 'react';
-import Rest from 'grommet/utils/Rest';
+import { headers, buildQuery, processStatus } from 'grommet/utils/Rest';
 import List from 'grommet/components/List';
 import GroupListItem from './GroupListItem';
 import BusyListItem from './BusyListItem';
@@ -26,23 +26,19 @@ export default class PersonGroups extends Component {
     }
   }
 
-  _onGroupsResponse (err, res) {
-    if (err) {
-      this.setState({groups: [], error: err, busy: false});
-    } else if (res.ok) {
-      const result = res.body.sort(function (g1, g2) {
-        const n1 = g1.cn.toLowerCase();
-        const n2 = g2.cn.toLowerCase();
-        if (n1 > n2) {
-          return 1;
-        }
-        if (n1 < n2) {
-          return -1;
-        }
-        return 0;
-      });
-      this.setState({groups: result, error: null, busy: false});
-    }
+  _onGroupsResponse (result) {
+    result = result.sort(function (g1, g2) {
+      const n1 = g1.cn.toLowerCase();
+      const n2 = g2.cn.toLowerCase();
+      if (n1 > n2) {
+        return 1;
+      }
+      if (n1 < n2) {
+        return -1;
+      }
+      return 0;
+    });
+    this.setState({groups: result, error: null, busy: false});
   }
 
   _getGroups (props) {
@@ -51,13 +47,19 @@ export default class PersonGroups extends Component {
       this.setState({busy: true});
       const filter = `(&(objectClass=groupOfNames)(member=${props.person.dn}))`;
       const params = {
-        url: encodeURIComponent(config.ldap_base_url),
-        base: encodeURIComponent(`ou=${this.state.scope.ou},o=${config.organization}`),
+        url: config.ldap_base_url,
+        base: `ou=${this.state.scope.ou},o=${config.organization}`,
         scope: 'sub',
-        filter: encodeURIComponent(filter),
+        filter: filter,
         attributes: this.state.scope.attributes
       };
-      Rest.get('/ldap/', params).end(this._onGroupsResponse);
+      const options = { method: 'GET', headers: headers };
+      const query = buildQuery(params);
+      fetch(`/ldap/${query}`, options)
+      .then(processStatus)
+      .then(response => response.json())
+      .then(this._onGroupsResponse)
+      .catch(error => this.setState({groups: [], error: error, busy: false}));
     }
   }
 
@@ -71,8 +73,8 @@ export default class PersonGroups extends Component {
     if (busy) {
       items = <BusyListItem />;
     } else {
-      items = groups.map((item, index) => (
-        <GroupListItem key={index} item={item} direction="column"
+      items = groups.map(item => (
+        <GroupListItem key={item.dn} item={item} direction="column"
           onClick={this._onSelect.bind(this, item)} />
       ));
     }

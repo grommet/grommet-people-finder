@@ -24,15 +24,14 @@ export default class People extends Component {
     if (searchText) {
       if (searchText[0] === '(') {
         // assume this is already a formal LDAP filter
-        filter = encodeURIComponent(searchText);
+        filter = searchText;
       } else {
         // handle "Last, First" syntax
         if (searchText.indexOf(',') !== -1) {
           searchText = searchText.replace(/(.+),\s*(.+)/, "$2 $1");
         }
         // only return Active employees
-        filter = encodeURIComponent(
-          `(&(hpStatus=Active)(|(cn=*${searchText}*)(uid=*${searchText}*)))`);
+        filter = `(&(hpStatus=Active)(|(cn=*${searchText}*)(uid=*${searchText}*)))`;
       }
     }
     return filter;

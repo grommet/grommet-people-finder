@@ -2,7 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import { FormattedMessage } from 'react-intl';
-import Rest from 'grommet/utils/Rest';
+import { headers, buildQuery, processStatus } from 'grommet/utils/Rest';
 import Header from 'grommet/components/Header';
 import Title from 'grommet/components/Title';
 import Article from 'grommet/components/Article';
@@ -17,7 +17,6 @@ export default class LocationComponent extends Component {
 
   constructor () {
     super();
-    this._onLocationResponse = this._onLocationResponse.bind(this);
     this.state = {location: {}, scope: config.scopes.locations};
   }
 
@@ -31,23 +30,20 @@ export default class LocationComponent extends Component {
     }
   }
 
-  _onLocationResponse (err, res) {
-    if (err) {
-      this.setState({location: {}, error: err});
-    } else if (res.ok) {
-      const result = res.body;
-      this.setState({location: result[0], error: null});
-    }
-  }
-
   _getLocation (id) {
     const params = {
-      url: encodeURIComponent(config.ldap_base_url),
-      base: encodeURIComponent(`ou=${this.state.scope.ou},o=${config.organization}`),
+      url: config.ldap_base_url,
+      base: `ou=${this.state.scope.ou},o=${config.organization}`,
       scope: 'sub',
       filter: `(hpRealEstateID=${id})`
     };
-    Rest.get('/ldap/', params).end(this._onLocationResponse);
+    const options = { method: 'GET', headers: headers };
+    const query = buildQuery(params);
+    fetch(`/ldap/${query}`, options)
+    .then(processStatus)
+    .then(response => response.json())
+    .then(result => this.setState({location: result[0], error: null}))
+    .catch(error => this.setState({location: {}, error: error}));
   }
 
   render () {

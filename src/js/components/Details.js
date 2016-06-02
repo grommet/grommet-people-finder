@@ -1,7 +1,7 @@
 // (C) Copyright 2014-2016 Hewlett Packard Enterprise Development LP
 
 import React, { Component, PropTypes } from 'react';
-import Rest from 'grommet/utils/Rest';
+import { headers, buildQuery, processStatus } from 'grommet/utils/Rest';
 import Article from 'grommet/components/Article';
 import Section from 'grommet/components/Section';
 import Heading from 'grommet/components/Heading';
@@ -12,7 +12,6 @@ export default class Details extends Component {
 
   constructor () {
     super();
-    this._onAssistantResponse = this._onAssistantResponse.bind(this);
     this._getAssistant = this._getAssistant.bind(this);
     this.state = {assistant: {}};
   }
@@ -40,22 +39,19 @@ export default class Details extends Component {
     return result;
   }
 
-  _onAssistantResponse (err, res) {
-    if (err) {
-      this.setState({assistant: {}, error: err});
-    } else if (res.ok) {
-      const result = res.body;
-      this.setState({assistant: result[0], error: null});
-    }
-  }
-
   _getAssistant (assistantDn) {
     const params = {
-      url: encodeURIComponent(config.ldap_base_url),
+      url: config.ldap_base_url,
       base: assistantDn,
       scope: 'sub'
     };
-    Rest.get('/ldap/', params).end(this._onAssistantResponse);
+    const options = { method: 'GET', headers: headers };
+    const query = buildQuery(params);
+    fetch(`/ldap/${query}`, options)
+    .then(processStatus)
+    .then(response => response.json())
+    .then(result => this.setState({assistant: result[0], error: undefined}))
+    .catch(error => this.setState({assistant: {}, error: error}));
   }
 
   render () {

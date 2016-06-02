@@ -19,6 +19,7 @@
     "body-parser": "^1.15.0",
     "compression": "^1.6.1",
     "cookie-parser": "^1.4.1",
+    "es6-promise": "^3.2.1",
     "express": "^4.13.4",
     "express-http-proxy": "^0.6.0",
     "grommet": "https://github.com/grommet/grommet/tarball/stable",

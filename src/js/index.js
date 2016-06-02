@@ -1,8 +1,10 @@
 // (C) Copyright 2014-2015 Hewlett Packard Enterprise Development LP
 
-require("../scss/index.scss");
-require("leaflet/dist/leaflet.css");
+import "../scss/index.scss";
+import "leaflet/dist/leaflet.css";
 import 'whatwg-fetch';
+import { polyfill as promisePolyfill } from 'es6-promise';
+promisePolyfill();
 
 import React from 'react';
 import ReactDOM from 'react-dom';

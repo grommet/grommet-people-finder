@@ -71,8 +71,8 @@ export default class PersonGroups extends Component {
     if (busy) {
       items = <BusyListItem />;
     } else {
-      items = groups.map(item => (
-        <GroupListItem key={item.uid} item={item} direction="column"
+      items = groups.map((item, index) => (
+        <GroupListItem key={index} item={item} direction="column"
           onClick={this._onSelect.bind(this, item)} />
       ));
     }

@@ -17,8 +17,19 @@ export default {
         if (searchText.indexOf(",") !== -1) {
           searchText = searchText.replace(/(.+),\s*(.+)/, "$2 $1");
         }
+
+        // allow ldap query to search for first/given name and last/surname to account for
+        // common names with middle initials
+        let queryEnd = "*)))";
+        const splitName = searchText.split(' ');
+        if (splitName.length && splitName.length > 1) {
+          const firstName = splitName[0];
+          const lastName = splitName[splitName.length - 1];
+          queryEnd = `*)(&|(givenName=${firstName}*)(sn=${lastName}*))))`;
+        }
+
         // only return Active employees
-        return "(&(hpStatus=Active)(|(cn=*" + searchText + "*)(uid=*" + searchText + "*)))";
+        return `(&(hpStatus=Active)(|(cn=*${searchText}*)(uid=*${searchText}${queryEnd}`;
       }
     },
 
@@ -29,7 +40,7 @@ export default {
       id: "cn",
       attributes: ["cn", "description"],
       filterForSearch: function (searchText) {
-        return "(cn=*" + searchText + "*)";
+        return `(cn=*${searchText}*)`;
       }
     },
 
@@ -41,7 +52,7 @@ export default {
       attributes: ["buildingName", "l", "hpRealEstateID"],
       filterForSearch: function (searchText) {
         searchText = searchText.replace(/\s+/g, "*");
-        return "(|(buildingName=*" + searchText + "*)(l=*" + searchText + "*))";
+        return `(|(buildingName=*${searchText}*)(l=*${searchText}*))`;
       }
     }
   }

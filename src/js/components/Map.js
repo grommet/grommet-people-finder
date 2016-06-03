@@ -61,7 +61,7 @@ export default class Map extends Component {
 
   componentWillUnmount () {
     const map = this.state.map;
-    if (this._onPopupOpen) {
+    if (map && this._onPopupOpen) {
       map.off('popupopen', this._onPopupOpen);
     }
   }
@@ -77,8 +77,11 @@ export default class Map extends Component {
       opacity: 0.8,
       fillOpacity: 0.8
     }).addTo(map);
+
+    const directionsLink = `<br/><a href="http://maps.google.com/maps?saddr=${this.state.latitude},${this.state.longitude}" target="_blank"><span>(Directions)</span></a>`;
     const address = `<h5><strong>${this.props.title}</strong></h5>
-      ${this._renderAddress().join('<br/>')}`;
+      ${this._renderAddress().join('<br/>')}
+      ${directionsLink}`;
     circle.bindPopup(address).openPopup();
   }
 
@@ -146,8 +149,17 @@ export default class Map extends Component {
   }
 
   _renderAddress () {
-    return [this.props.street, this.props.city, this.props.state,
+    let addressArray = [this.props.city, this.props.state,
       this.props.postalCode, this.props.country];
+
+    // parse street addresses with '$' into separate lines
+    if (this.props.street) {
+      const parsedStreet = this.props.street.split('$')
+        .map((addressLine) => addressLine.trim());
+      addressArray = parsedStreet.concat(addressArray);
+    }
+
+    return addressArray;
   }
 
   render () {

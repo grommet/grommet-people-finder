@@ -158,7 +158,7 @@ export default class Organization extends Component {
         <List>
           {managers}
         </List>
-        <Box key="header" pad={{vertical: "medium", between: 'medium'}}
+        <Box key="header" pad={{vertical: "medium", between: 'small'}}
           colorIndex="light-1" justify="center" align="center">
           {image}
           {label}

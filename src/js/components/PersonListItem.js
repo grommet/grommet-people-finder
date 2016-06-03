@@ -22,7 +22,7 @@ const PersonListItem = (props) => {
       <Box pad={{between: 'small'}} direction="row" align="center"
         responsive={false} className="flex">
         {thumbnail}
-        {item.cn}
+        <span>{item.cn}</span>
       </Box>
       <span className="secondary">{item.hpBusinessUnit}</span>
     </ListItem>

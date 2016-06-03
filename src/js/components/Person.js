@@ -33,6 +33,7 @@ export default class Person extends Component {
     super();
     this._onResponsive = this._onResponsive.bind(this);
     this._onPersonResponse = this._onPersonResponse.bind(this);
+    this._onTimezoneResponse = this._onTimezoneResponse.bind(this);
     this._onDetails = this._onDetails.bind(this);
     this._onGroups = this._onGroups.bind(this);
     this._onOrganization = this._onOrganization.bind(this);
@@ -89,10 +90,10 @@ export default class Person extends Component {
     const options = { method: 'GET', headers: headers };
     const query = buildQuery(params);
     fetch(`/ldap/${query}`, options)
-    .then(processStatus)
-    .then(response => response.json())
-    .then(this._onPersonResponse)
-    .catch(error => this.setState({person: {}, error: error}));
+      .then(processStatus)
+      .then(response => response.json())
+      .then(this._onPersonResponse)
+      .catch(error => this.setState({person: {}, error: error}));
   }
 
   _getLocation (workLocation) {
@@ -104,10 +105,10 @@ export default class Person extends Component {
     const options = { method: 'GET', headers: headers };
     const query = buildQuery(params);
     fetch(`/ldap/${query}`, options)
-    .then(processStatus)
-    .then(response => response.json())
-    .then(result => this._getTimezone(result[0]))
-    .catch(error => this.setState({error: error}));
+      .then(processStatus)
+      .then(response => response.json())
+      .then(result => this._getTimezone(result[0]))
+      .catch(error => this.setState({error: error}));
   }
 
   _onDetails () {
@@ -160,9 +161,17 @@ export default class Person extends Component {
     return personDate.getHours();
   }
 
+  _onTimezoneResponse (result) {
+    const person = this.state.person;
+    const time = result.time;
+    const personHour = Number.parseInt(time.substr(11, 2));
+    const currentPersonTime = this._formatHourInCity(personHour, person.l);
+    this.setState({currentPersonTime: currentPersonTime, error: null});
+  }
+
   _getTimezone (location) {
     const person = this.state.person;
-    let currentPersonTime;
+    let currentPersonTime = 'No timezone information found.';
 
     if (location.latitude && location.longitude) {
       const params = {
@@ -170,26 +179,17 @@ export default class Person extends Component {
         lng: location.longitude,
         username: GEONAMES_USERNAME
       };
-
-      Rest
-        .get("http://api.geonames.org/timezoneJSON", params)
-        .end((err, res) => {
-          if (err) {
-            this.setState({currentPersonTime: '', error: err});
-          } else if (res.ok) {
-            const result = res.body;
-            const time = result.time;
-            const personHour = Number.parseInt(time.substr(11, 2));
-            currentPersonTime = this._formatHourInCity(personHour, person.l);
-
-            this.setState({currentPersonTime: currentPersonTime, error: null});
-          }
-        });
+      const timeZoneHeader = { 'Accept': 'application/json' };
+      const options = { method: 'GET', headers: timeZoneHeader, mode: 'cors' };
+      const query = buildQuery(params);
+      fetch(`http://api.geonames.org/timezoneJSON${query}`, options)
+        .then(processStatus)
+        .then((response) => response.json())
+        .then(this._onTimezoneResponse)
+        .catch(error => this.setState({ currentPersonTime: currentPersonTime, error: error }));
     } else {
       // could not find latitude + longitude, or timeZone
       // properties from LDAP location query
-      currentPersonTime = 'No timezone information found.';
-
       if (location.timeZone) {
         // fallback to using timeZone data from LDAP server
         // (which might not be taking DST into account)

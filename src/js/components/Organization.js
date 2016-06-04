@@ -114,10 +114,12 @@ export default class Organization extends Component {
   render () {
     const person = this.props.person;
     let givenName = person.givenName;
+    const middleInitialRegExp = new RegExp(/\s\w\.?$/);
     // check to see if givenName includes single letter (middle initial)
-    // after first name, and trim it
-    if (givenName && givenName.indexOf(' ') === givenName.length - 2) {
-      givenName = givenName.substring(0, givenName.length - 2);
+    // with or without period, and trim it.
+    // assumes givenName does not include last name (as stored in LDAP server).
+    if (givenName) {
+      givenName = givenName.replace(middleInitialRegExp, '');
     }
 
     let managers;

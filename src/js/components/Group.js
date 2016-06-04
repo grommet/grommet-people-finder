@@ -118,7 +118,7 @@ export default class Group extends Component {
         </Header>
         <Section pad="medium">
           <Header tag="h1" justify="between">
-            <span>{group.cn}</span>
+            {group.cn}
           </Header>
           <p>{group.description}</p>
           {mails}

@@ -9,7 +9,10 @@ promisePolyfill();
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { IntlProvider, addLocaleData } from 'react-intl';
-import { en, pt, ja, zh } from 'react-intl/locale-data';
+import en from 'react-intl/locale-data/en';
+import pt from 'react-intl/locale-data/pt';
+import ja from 'react-intl/locale-data/ja';
+import zh from 'react-intl/locale-data/zh';
 
 import { getCurrentLocale, getLocaleData } from 'grommet/utils/Locale';
 import PeopleFinder from './components/PeopleFinder';

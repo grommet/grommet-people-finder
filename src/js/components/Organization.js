@@ -113,6 +113,15 @@ export default class Organization extends Component {
 
   render () {
     const person = this.props.person;
+    let givenName = person.givenName;
+    const middleInitialRegExp = new RegExp(/\s\w\.?$/);
+    // check to see if givenName includes single letter (middle initial)
+    // with or without period, and trim it.
+    // assumes givenName does not include last name (as stored in LDAP server).
+    if (givenName) {
+      givenName = givenName.replace(middleInitialRegExp, '');
+    }
+
     let managers;
     if (person.uid) {
       if (this.state.busy) {
@@ -125,17 +134,19 @@ export default class Organization extends Component {
       }
       // managers.push(<PersonListItem key={person.uid} item={person} colorIndex="light-2"/>);
     }
+
     let image;
     if (person.hpPictureThumbnailURI) {
       image = <Image size="thumb" mask={true} src={person.hpPictureThumbnailURI} />;
     } else {
       image = <UserIcon size="large" />;
     }
+
     let label, team;
     if (this.state.team.length > 0) {
       label = (
         <Heading tag="h4" margin="none">
-          <strong>{`${person.givenName}'s Team`}</strong>
+          <strong>{`${givenName}'s Team`}</strong>
         </Heading>
       );
       const members = this.state.team.map((item, index) => (
@@ -147,7 +158,7 @@ export default class Organization extends Component {
       if (!this.state.busy) {
         label = (
           <Label className="secondary" margin="none">
-            {`${person.givenName} has no direct reports.`}
+            {`${givenName} has no direct reports.`}
           </Label>
         );
       }

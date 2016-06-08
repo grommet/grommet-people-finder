@@ -22,3 +22,10 @@
   width: 100%;
   max-width: 150px;
 }
+
+// IE11 fix to vertically align center box within header
+.header > .box {
+  @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+    height: $header-height;
+  }
+}

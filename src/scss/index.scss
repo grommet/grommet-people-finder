@@ -29,3 +29,10 @@
     height: $header-height;
   }
 }
+
+// IE11 fix for group list items with overflowing text
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+  .list-item > span {
+    max-width: 100%;
+  }
+}

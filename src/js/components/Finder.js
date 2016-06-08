@@ -10,6 +10,7 @@ import Search from 'grommet/components/Search';
 import Section from 'grommet/components/Section';
 import Paragraph from 'grommet/components/Paragraph';
 import Box from 'grommet/components/Box';
+import HPELogo from './HPELogo';
 import Logo from './Logo';
 import config from '../config';
 
@@ -50,9 +51,11 @@ export default class Finder extends Component {
       colorIndex = "neutral-1-a";
       footer = (
         <Footer float={true} colorIndex="grey-3-a"
-          pad={{vertical: "small", horizontal: "medium", between: "medium"}} wrap={true} direction="row" justify="between">
-          <img src="img/hpesm_pri_grn_rev_rgb.svg" alt="logo" className="logo" />
-          <Paragraph size="small">{`\u00a9 ${new Date().getFullYear()}  Hewlett Packard Enterprise Development LP`}</Paragraph>
+          pad={{vertical: "small", horizontal: "medium", between: "medium"}} wrap={true} direction="row" justify="between" align="center">
+          <Box pad={{vertical: "small"}}>
+            <HPELogo />
+          </Box>
+          <Paragraph size="small" margin="none">{`\u00a9 ${new Date().getFullYear()}  Hewlett Packard Enterprise Development LP`}</Paragraph>
         </Footer>
       );
     }

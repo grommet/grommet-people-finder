@@ -22,3 +22,17 @@
   width: 100%;
   max-width: 150px;
 }
+
+// IE11 fix to vertically align center box within header
+.header > .box {
+  @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+    height: $header-height;
+  }
+}
+
+// IE11 fix for group list items with overflowing text
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+  .list-item > span {
+    max-width: 100%;
+  }
+}

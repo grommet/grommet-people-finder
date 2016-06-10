@@ -47,7 +47,6 @@ export default class Organization extends Component {
         this.setState({busy: false});
       }
     } else {
-      console.log('Unknown manager', res.req.url);
       this.setState({busy: false});
     }
   }
@@ -92,7 +91,7 @@ export default class Organization extends Component {
         url: config.ldap_base_url,
         base: `ou=${this.state.scope.ou},o=${config.organization}`,
         scope: 'sub',
-        filter: `(&(hpStatus=Active)(manager=${props.person.dn}))`,
+        filter: `(&(manager=${props.person.dn}))`,
         attributes: this.state.scope.attributes
       };
       const options = { method: 'GET', headers: headers };
@@ -113,7 +112,7 @@ export default class Organization extends Component {
 
   render () {
     const person = this.props.person;
-    let givenName = person.givenName;
+    let givenName = person.cn;
     const middleInitialRegExp = new RegExp(/\s\w\.?$/);
     // check to see if givenName includes single letter (middle initial)
     // with or without period, and trim it.

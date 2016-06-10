@@ -2,8 +2,8 @@
 
 export default {
 
-  ldap_base_url: "ldap://ldap.hp.com",
-  organization: "hp.com",
+  ldap_base_url: "ldap://ldap.grommet.io",
+  organization: "grommet.io",
 
   scopes: {
     people: {
@@ -29,7 +29,7 @@ export default {
         }
 
         // only return Active employees
-        return `(&(hpStatus=Active)(|(cn=*${searchText}*)(uid=*${searchText}${queryEnd}`;
+        return `(&(|(cn=*${searchText}*)(uid=*${searchText}${queryEnd}`;
       }
     },
 

@@ -44,7 +44,7 @@ router.get('/', function(req, res) {
         res.send(entries);
       });
       ldapRes.on('end', function (result) {
-        console.log('status: ', result.status, ' have ', entries.length);
+        //console.log('status: ', result.status, ' have ', entries.length);
         res.send(entries);
       });
     }

@@ -31,7 +31,7 @@ export default class People extends Component {
           searchText = searchText.replace(/(.+),\s*(.+)/, "$2 $1");
         }
         // only return Active employees
-        filter = `(&(hpStatus=Active)(|(cn=*${searchText}*)(uid=*${searchText}*)))`;
+        filter = `(&(|(cn=*${searchText}*)(uid=*${searchText}*)))`;
       }
     }
     return filter;

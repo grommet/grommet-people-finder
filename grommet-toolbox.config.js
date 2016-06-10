@@ -29,11 +29,6 @@ export default {
   devServerProxy: {
     "/ldap/*": 'http://localhost:8020'
   },
-  sync: {
-    hostname: 'grommet.us.rdlabs.hpecorp.net',
-    username: 'ligo',
-    remoteDestination: '/var/www/html/examples/people-finder/dist'
-  },
   alias: {
     'grommet/scss': path.resolve(__dirname, '../grommet/src/scss'),
     'grommet': path.resolve(__dirname, '../grommet/src/js')

@@ -10,7 +10,7 @@ import Search from 'grommet/components/Search';
 import Section from 'grommet/components/Section';
 import Paragraph from 'grommet/components/Paragraph';
 import Box from 'grommet/components/Box';
-import HPELogo from './HPELogo';
+import GrommetLogo from 'grommet/components/icons/Grommet';
 import Logo from './Logo';
 import config from '../config';
 
@@ -52,10 +52,12 @@ export default class Finder extends Component {
       footer = (
         <Footer float={true} colorIndex="grey-3-a"
           pad={{vertical: "small", horizontal: "medium", between: "medium"}} wrap={true} direction="row" justify="between" align="center">
-          <Box pad={{vertical: "small"}}>
-            <HPELogo />
+          <Box pad={{vertical: "small", between: "small"}} direction="row">
+            <span>Powered By</span> <GrommetLogo />
           </Box>
-          <Paragraph size="small" margin="none">{`\u00a9 ${new Date().getFullYear()}  Hewlett Packard Enterprise Development LP`}</Paragraph>
+          <span>
+            This work is licensed under the <a href="http://creativecommons.org/licenses/by/4.0/legalcode" target="_blank">Creative Commons Attribution 4.0 International License</a>.
+          </span>
         </Footer>
       );
     }

@@ -4,6 +4,9 @@ import gulp from 'gulp';
 import { argv } from 'yargs';
 import path from 'path';
 import nodemon from 'gulp-nodemon';
+import del from 'del';
+import git from 'gulp-git';
+import mkdirp from 'mkdirp';
 import grommetToolbox, { getOptions } from 'grommet-toolbox';
 
 gulp.task('set-webpack-alias', function () {

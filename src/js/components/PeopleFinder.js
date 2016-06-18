@@ -111,7 +111,7 @@ export default class PeopleFinder extends Component {
   _onSelect (item, scopeArg) {
     const scope = scopeArg || this.state.scope;
     this.setState({
-      id: item[scope.id],
+      id: item[scope.attributes.id],
       scope: scope,
       title: this._title(scope, item)
     }, this._pushState);
@@ -129,21 +129,21 @@ export default class PeopleFinder extends Component {
 
     if (this.state.id) {
 
-      if ('people' === this.state.scope.ou) {
+      if (config.scopes.people.ou === this.state.scope.ou) {
 
         contents = (
           <Person id={this.state.id} onSelect={this._onSelect}
             onClose={this._onCloseItem} />
         );
 
-      } else if ('groups' === this.state.scope.ou) {
+      } else if (config.scopes.groups.ou === this.state.scope.ou) {
 
         contents = (
           <Group id={this.state.id} onSelect={this._onSelect}
             onClose={this._onCloseItem} />
         );
 
-      } else if ('locations' === this.state.scope.ou) {
+      } else if (config.scopes.locations.ou === this.state.scope.ou) {
 
         contents = (
           <LocationComponent id={this.state.id}

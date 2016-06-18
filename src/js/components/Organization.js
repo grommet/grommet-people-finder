@@ -11,7 +11,7 @@ import UserIcon from 'grommet/components/icons/base/User';
 import { headers, buildQuery, processStatus } from 'grommet/utils/Rest';
 import PersonListItem from './PersonListItem';
 import BusyListItem from './BusyListItem';
-import config from '../config';
+import config, { attributesToArray } from '../config';
 
 export default class Organization extends Component {
 
@@ -91,8 +91,8 @@ export default class Organization extends Component {
         url: config.ldap_base_url,
         base: `ou=${this.state.scope.ou},o=${config.organization}`,
         scope: 'sub',
-        filter: `(&(manager=${props.person.dn}))`,
-        attributes: this.state.scope.attributes
+        filter: `(&(${config.scopes.people.attributes.manager}=${props.person.dn}))`,
+        attributes: attributesToArray(this.state.scope.attributes)
       };
       const options = { method: 'GET', headers: headers };
       const query = buildQuery(params);
@@ -102,7 +102,7 @@ export default class Organization extends Component {
       .then(this._onTeamResponse)
       .catch(error => this.setState({staff: [], error: error}));
 
-      this._getManager(props.person.manager);
+      this._getManager(props.person[config.scopes.people.attributes.manager]);
     }
   }
 
@@ -112,7 +112,7 @@ export default class Organization extends Component {
 
   render () {
     const person = this.props.person;
-    let givenName = person.cn;
+    let givenName = person[config.scopes.people.attributes.name];
     const middleInitialRegExp = new RegExp(/\s\w\.?$/);
     // check to see if givenName includes single letter (middle initial)
     // with or without period, and trim it.
@@ -122,21 +122,24 @@ export default class Organization extends Component {
     }
 
     let managers;
-    if (person.uid) {
+    if (person[config.scopes.people.attributes.id]) {
       if (this.state.busy) {
         managers = [<BusyListItem key="busy" />];
       } else {
         managers = this.state.managers.map(item => (
-          <PersonListItem key={item.uid} item={item}
-            onClick={this._onSelect.bind(this, item)} />
+          <PersonListItem key={item[config.scopes.people.attributes.id]}
+            item={item} onClick={this._onSelect.bind(this, item)} />
         ));
       }
       // managers.push(<PersonListItem key={person.uid} item={person} colorIndex="light-2"/>);
     }
 
     let image;
-    if (person.hpPictureThumbnailURI) {
-      image = <Image size="thumb" mask={true} src={person.hpPictureThumbnailURI} />;
+    if (person[config.scopes.people.attributes.thumbnail]) {
+      image = (
+        <Image size="thumb" mask={true}
+          src={person[config.scopes.people.attributes.thumbnail]} />
+      );
     } else {
       image = <UserIcon size="large" />;
     }
@@ -149,7 +152,8 @@ export default class Organization extends Component {
         </Heading>
       );
       const members = this.state.team.map((item, index) => (
-        <PersonListItem key={item.uid} item={item} first={index === 0}
+        <PersonListItem key={item[config.scopes.people.attributes.id]}
+          item={item} first={index === 0}
           onClick={this._onSelect.bind(this, item)} />
       ));
       team = <List key="team">{members}</List>;

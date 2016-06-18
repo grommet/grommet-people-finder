@@ -10,13 +10,12 @@ import GroupListItem from './GroupListItem';
 import LocationListItem from './LocationListItem';
 import SummaryListItem from './SummaryListItem';
 import BusyListItem from './BusyListItem';
-import config from '../config';
+import config, { attributesToArray } from '../config';
 
-const SCOPE_LIST_ITEMS = {
-  people: PersonListItem,
-  groups: GroupListItem,
-  locations: LocationListItem
-};
+const SCOPE_LIST_ITEMS = {};
+SCOPE_LIST_ITEMS[config.scopes.people.ou] = PersonListItem;
+SCOPE_LIST_ITEMS[config.scopes.groups.ou] = GroupListItem;
+SCOPE_LIST_ITEMS[config.scopes.locations.ou] = LocationListItem;
 
 export default class DirectoryList extends Component {
 
@@ -78,7 +77,7 @@ export default class DirectoryList extends Component {
       base: `ou=${this.props.scope.ou},o=${config.organization}`,
       scope: 'sub',
       filter: filter,
-      attributes: this.props.scope.attributes
+      attributes: attributesToArray(this.props.scope.attributes)
     };
     const options = { method: 'GET', headers: headers };
     const query = buildQuery(params);
@@ -95,7 +94,7 @@ export default class DirectoryList extends Component {
         if (scope.ou !== this.props.scope.ou) {
           params.base = `ou=${scope.ou},o=${config.organization}`;
           params.filter = scope.filterForSearch(searchText);
-          params.attributes = scope.attributes;
+          params.attributes = attributesToArray(scope.attributes);
           const query = buildQuery(params);
           fetch(`/ldap/${query}`, options)
           .then(processStatus)

@@ -2,6 +2,7 @@
 
 import React, { PropTypes } from 'react';
 import ListItem from 'grommet/components/ListItem';
+import config from '../config';
 
 const GroupListItem = (props) => {
   const { item, first } = props;
@@ -10,8 +11,10 @@ const GroupListItem = (props) => {
       align={'column' === props.direction ? 'start' : 'center'}
       direction={props.direction}
       onClick={props.onClick} separator={first ? 'horizontal' : 'bottom'}>
-      <strong>{item.cn}</strong>
-      <span className="secondary">{item.description}</span>
+      <strong>{item[config.scopes.groups.attributes.id]}</strong>
+      <span className="secondary">
+        {item[config.scopes.groups.attributes.description]}
+      </span>
     </ListItem>
   );
 };

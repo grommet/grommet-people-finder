@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import DirectoryList from './DirectoryList';
+import config from '../config';
 
 export default class People extends Component {
 
@@ -30,8 +31,7 @@ export default class People extends Component {
         if (searchText.indexOf(',') !== -1) {
           searchText = searchText.replace(/(.+),\s*(.+)/, "$2 $1");
         }
-        // only return Active employees
-        filter = `(&(|(cn=*${searchText}*)(uid=*${searchText}*)))`;
+        filter = `(&(|(${config.scopes.people.attributes.name}=*${searchText}*)(${config.scopes.people.attributes.id}=*${searchText}*)))`;
       }
     }
     return filter;

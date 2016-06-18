@@ -9,7 +9,7 @@ export default class Logo extends Component {
     if (this.props.className) {
       className += ' ' + this.props.className;
     }
-    let stroke = '#00B388';
+    let stroke = '#865CD6';
     if (this.props.reverse) {
       stroke = '#ffffff';
     }

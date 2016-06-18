@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import DirectoryList from './DirectoryList';
+import config from '../config';
 
 export default class Groups extends Component {
 
@@ -26,7 +27,7 @@ export default class Groups extends Component {
         // assume this is already a formal LDAP filter
         filter = searchText;
       } else {
-        filter = `(cn=*${searchText}*)`;
+        filter = `(${config.scopes.groups.attributes.id}=*${searchText}*)`;
       }
     }
     return filter;

@@ -2,14 +2,15 @@
 
 import React, { PropTypes } from 'react';
 import ListItem from 'grommet/components/ListItem';
+import config from '../config';
 
 const LocationListItem = (props) => {
   const { item } = props;
   return (
     <ListItem justify="between" align="center" pad="medium"
       onClick={props.onClick}>
-      <strong>{item.buildingName}</strong>
-      <span className="secondary">{item.l}</span>
+      <strong>{item[config.scopes.locations.attributes.name]}</strong>
+      <span className="secondary">{item[config.scopes.locations.attributes.city]}</span>
     </ListItem>
   );
 };

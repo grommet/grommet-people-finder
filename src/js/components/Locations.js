@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import DirectoryList from './DirectoryList';
+import config from '../config';
 
 export default class Locations extends Component {
 
@@ -27,7 +28,7 @@ export default class Locations extends Component {
         filter = searchText;
       } else {
         searchText = searchText.replace(/\s+/g, '*');
-        filter = `(|(buildingName=*${searchText}*)(l=*${searchText}*))`;
+        filter = `(|(${config.scopes.locations.attributes.name}=*${searchText}*)(${config.scopes.locations.attributes.city}=*${searchText}*))`;
       }
     }
     return filter;

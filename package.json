@@ -39,5 +39,8 @@
   "devDependencies": {
     "grommet-toolbox": "^0.1.14",
     "yargs": "^3.30.0"
+  },
+  "scripts": {
+    "start": "node server/server.js"
   }
 }

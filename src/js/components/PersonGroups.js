@@ -3,9 +3,10 @@
 import React, { Component, PropTypes } from 'react';
 import { headers, buildQuery, processStatus } from 'grommet/utils/Rest';
 import List from 'grommet/components/List';
+import Box from 'grommet/components/Box';
 import GroupListItem from './GroupListItem';
 import BusyListItem from './BusyListItem';
-import config from '../config';
+import config, { attributesToArray } from '../config';
 
 export default class PersonGroups extends Component {
 
@@ -45,13 +46,13 @@ export default class PersonGroups extends Component {
     this.setState({groups: [], busy: true});
     if (props.person.dn) {
       this.setState({busy: true});
-      const filter = `(&(objectClass=groupOfNames)(member=${props.person.dn}))`;
+      const filter = `(&(objectClass=${config.scopes.groups.attributes.objectClass})(member=${props.person.dn}))`;
       const params = {
         url: config.ldap_base_url,
         base: `ou=${this.state.scope.ou},o=${config.organization}`,
         scope: 'sub',
         filter: filter,
-        attributes: this.state.scope.attributes
+        attributes: attributesToArray(this.state.scope.attributes)
       };
       const options = { method: 'GET', headers: headers };
       const query = buildQuery(params);
@@ -69,9 +70,16 @@ export default class PersonGroups extends Component {
 
   render () {
     const { groups, busy } = this.state;
+    const { person } = this.props;
     let items;
     if (busy) {
       items = <BusyListItem />;
+    } else if (!groups || groups.length === 0) {
+      items = (
+        <Box pad='medium'>
+          {`${person[config.scopes.people.attributes.name]} is not assigned to any group.`}
+        </Box>
+      );
     } else {
       items = groups.map(item => (
         <GroupListItem key={item.dn} item={item} direction="column"

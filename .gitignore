@@ -35,4 +35,4 @@ dist
 *tmp*
 **sublime-project**
 **sublime-workspace**
-
+.DS_Store

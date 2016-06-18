@@ -76,7 +76,7 @@ export default class Person extends Component {
   _onPersonResponse (result) {
     const person = result[0];
     const view = this.state.responsive ? 'contact' : this.state.view;
-    this._getLocation(person.hpWorkLocation);
+    this._getLocation(person[config.scopes.people.attributes.workLocation]);
     this.setState({person: person, error: null, view: view});
   }
 
@@ -85,7 +85,7 @@ export default class Person extends Component {
       url: config.ldap_base_url,
       base: 'ou=' + this.state.scope.ou + ',o=' + config.organization,
       scope: 'sub',
-      filter: '(uid=' + id + ')'
+      filter: `(${config.scopes.people.attributes.id}=${id})`
     };
     const options = { method: 'GET', headers: headers };
     const query = buildQuery(params);
@@ -165,7 +165,7 @@ export default class Person extends Component {
     const person = this.state.person;
     const time = result.time;
     const personHour = Number.parseInt(time.substr(11, 2));
-    const currentPersonTime = this._formatHourInCity(personHour, person.l);
+    const currentPersonTime = this._formatHourInCity(personHour, person[config.scopes.people.attributes.workCity]);
     this.setState({currentPersonTime: currentPersonTime, error: null});
   }
 
@@ -173,10 +173,11 @@ export default class Person extends Component {
     const person = this.state.person;
     let currentPersonTime = 'No timezone information found.';
 
-    if (location.latitude && location.longitude) {
+    if (location[config.scopes.people.attributes.latitude] &&
+      location[config.scopes.people.attributes.longitude]) {
       const params = {
-        lat: location.latitude,
-        lng: location.longitude,
+        lat: location[config.scopes.people.attributes.latitude],
+        lng: location[config.scopes.people.attributes.longitude],
         username: GEONAMES_USERNAME
       };
       const timeZoneHeader = { 'Accept': 'application/json' };
@@ -197,7 +198,7 @@ export default class Person extends Component {
         const personHour = this._getHourFromLDAPTimezone(personTimezone);
         // formatting timezone from LDAP
         const formattedPersonTimezone = `${personTimezone.substr(0,3)}:${personTimezone.substr(3,2)}`;
-        currentPersonTime = this._formatHourInCity(personHour, person.l, formattedPersonTimezone);
+        currentPersonTime = this._formatHourInCity(personHour, person[config.scopes.people.attributes.workCity], formattedPersonTimezone);
       }
 
       this.setState({currentPersonTime: currentPersonTime});
@@ -211,8 +212,8 @@ export default class Person extends Component {
     const person = this.state.person;
 
     let personTitle;
-    if (person.title) {
-      personTitle = person.title.replace(/&amp;/g, '&');
+    if (person[config.scopes.people.attributes.title]) {
+      personTitle = person[config.scopes.people.attributes.title].replace(/&amp;/g, '&');
     }
 
     let header;
@@ -240,17 +241,18 @@ export default class Person extends Component {
       contactContentsPad = { horizontal: "medium" };
     }
 
-    let phone;
-    if (! person.telephoneNumber || '+1' === person.telephoneNumber) {
-      phone = <span className="secondary">Phone number not available.</span>;
+    let phoneNode;
+    const phone = person[config.scopes.people.attributes.telephoneNumber];
+    if (! phone || '+1' === phone) {
+      phoneNode = <span className="secondary">Phone number not available.</span>;
     } else {
-      phone = <Anchor href={"tel:" + person.telephoneNumber}>{person.telephoneNumber}</Anchor>;
+      phoneNode = <Anchor href={"tel:" + phone}>{phone}</Anchor>;
     }
 
     let image;
-    if (person.hpPictureURI) {
+    if (person[config.scopes.people.attributes.picture]) {
       image = (
-        <img className="avatar" src={person.hpPictureURI || 'img/no-picture.png'}
+        <img className="avatar" src={person[config.scopes.people.attributes.picture] || 'img/no-picture.png'}
           alt="picture" />
       );
     } else {
@@ -267,23 +269,26 @@ export default class Person extends Component {
           </Box>
           <Section pad={contactContentsPad} className="flex">
             <Heading tag="h1">
-              {person.cn}
+              {person[config.scopes.people.attributes.name]}
             </Heading>
             <Paragraph margin="none">{personTitle}</Paragraph>
             <Paragraph size="large" margin="small">
-              <Anchor href={"mailto:" + person.uid}>{person.uid}</Anchor>
+              <Anchor href={"mailto:" + person[config.scopes.people.attributes.id]}>{person[config.scopes.people.attributes.id]}</Anchor>
             </Paragraph>
             <Paragraph size="large" margin="small">
-              {phone}
+              {phoneNode}
             </Paragraph>
             <Paragraph size="large" margin="small">
               {this.state.currentPersonTime}
             </Paragraph>
           </Section>
         </Box>
-        <Map title={person.o} className="flex"
-          street={person.street} city={person.l} state={person.st}
-          postalCode={person.postalCode} country={person.co} />
+        <Map title={person[config.scopes.people.attributes.workName]} className="flex"
+          street={person[config.scopes.people.attributes.workStreet]}
+          city={person[config.scopes.people.attributes.workCity]}
+          state={person[config.scopes.people.attributes.workState]}
+          postalCode={person[config.scopes.people.attributes.workPostalCode]}
+          country={person[config.scopes.people.attributes.workCountry]} />
       </Article>
     );
 

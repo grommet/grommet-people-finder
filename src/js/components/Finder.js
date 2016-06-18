@@ -8,9 +8,9 @@ import Anchor from 'grommet/components/Anchor';
 import Footer from 'grommet/components/Footer';
 import Search from 'grommet/components/Search';
 import Section from 'grommet/components/Section';
-import Paragraph from 'grommet/components/Paragraph';
 import Box from 'grommet/components/Box';
 import GrommetLogo from 'grommet/components/icons/Grommet';
+import FavoriteLogo from 'grommet/components/icons/base/Favorite';
 import Logo from './Logo';
 import config from '../config';
 
@@ -52,12 +52,14 @@ export default class Finder extends Component {
       footer = (
         <Footer float={true} colorIndex="grey-3-a"
           pad={{vertical: "small", horizontal: "medium", between: "medium"}} wrap={true} direction="row" justify="between" align="center">
-          <Box pad={{vertical: "small", between: "small"}} direction="row">
-            <span>Powered By</span> <GrommetLogo />
+          <Box pad={{vertical: "small", between: "small"}} align='center'
+            direction="row">
+            <GrommetLogo />
           </Box>
-          <span>
-            This work is licensed under the <a href="http://creativecommons.org/licenses/by/4.0/legalcode" target="_blank">Creative Commons Attribution 4.0 International License</a>.
-          </span>
+          <Box pad={{vertical: "small", between: "small"}} align='center'
+            direction='row' responsive={false}>
+            <span>Made with</span><FavoriteLogo /> <span>by the <a href="http://grommet.io" target="_blank">Grommet team</a></span>.
+          </Box>
         </Footer>
       );
     }
@@ -86,7 +88,7 @@ export default class Finder extends Component {
             align="center" justify="end">
             <Search ref="search" inline={true} responsive={false} className="flex"
               placeHolder="Search"
-              defaultValue={this.props.searchText}
+              value={this.props.searchText}
               onDOMChange={this._onSearchDOMChange} />
           </Box>
         </Header>

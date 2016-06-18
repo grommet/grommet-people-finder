@@ -35,7 +35,7 @@ export default class LocationComponent extends Component {
       url: config.ldap_base_url,
       base: `ou=${this.state.scope.ou},o=${config.organization}`,
       scope: 'sub',
-      filter: `(hpRealEstateID=${id})`
+      filter: `(${config.scopes.locations.attributes.id}=${id})`
     };
     const options = { method: 'GET', headers: headers };
     const query = buildQuery(params);
@@ -52,16 +52,29 @@ export default class LocationComponent extends Component {
     );
     const loc = this.state.location;
     let address;
-    if (loc.postalAddress) {
-      address = loc.postalAddress.split(/ \$ /).map((e, index) =>
+    const postalAddress = loc[config.scopes.locations.attributes.address];
+    if (postalAddress) {
+      address = postalAddress.split(/ \$ /).map((e, index) =>
         (<div key={index}>{e}</div>));
+    }
+
+    let map;
+    if (loc[config.scopes.locations.attributes.country]) {
+      map = (
+        <Map title={loc[config.scopes.locations.attributes.category] || loc[config.scopes.locations.attributes.name]}
+          street={loc[config.scopes.locations.attributes.street]}
+          city={loc[config.scopes.locations.attributes.city]}
+          state={loc[config.scopes.locations.attributes.state]}
+          postalCode={loc[config.scopes.locations.attributes.postalCode]}
+          country={loc[config.scopes.locations.attributes.country]} className="flex" />
+      );
     }
 
     // NOTE: ED latitude and longitude aren't accurate. Removed the following from Map use:
     // latitude={loc.latitude} longitude={loc.longitude}
 
     return (
-      <Article>
+      <Article full={true}>
         <Header large={true} pad={{horizontal: "medium"}} separator="bottom"
           justify="between">
           <Title onClick={this.props.onClose} responsive={false}>
@@ -72,15 +85,18 @@ export default class LocationComponent extends Component {
         </Header>
         <Section pad="medium">
           <Header tag="h1" justify="between">
-            <span>{loc.buildingName}</span>
-            <span className="secondary">{loc.hpRealEstateID}</span>
+            <span>{loc[config.scopes.locations.attributes.name]}</span>
+            <span className="secondary">
+              {loc[config.scopes.locations.attributes.id]}
+            </span>
           </Header>
           <address>{address}</address>
-          <h3><a href={"tel:" + loc.telephoneNumber}>{loc.telephoneNumber}</a></h3>
-          <p>{loc.businessCategory}</p>
+          <h3><a href={"tel:" + loc[config.scopes.locations.attributes.telephoneNumber]}>
+            {loc[config.scopes.locations.attributes.telephoneNumber]}
+          </a></h3>
+          <p>{loc[config.scopes.locations.attributes.category]}</p>
         </Section>
-        <Map title={loc.businessCategory || loc.buildingName}
-          street={loc.street} city={loc.l} state={loc.st} country={loc.c} />
+        {map}
       </Article>
     );
   }

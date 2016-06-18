@@ -11,7 +11,7 @@ var path = require('path');
 
 var ldap = require('./ldap');
 
-var PORT = 8020;
+var PORT = process.env.PORT || 8020;
 
 var app = express();
 

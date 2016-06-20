@@ -1,0 +1,23 @@
+{
+  "name": "grommet-people-finder",
+  "description": "App that allows searching for people in your organization.",
+  "keywords": [
+    "ldap",
+    "nodejs",
+    "grommet"
+  ],
+  "website": "https://peoplefinder.grommet.io/",
+  "repository": "https://github.com/grommet/grommet-people-finder",
+  "logo": "https://raw.githubusercontent.com/grommet/grommet/master/src/img/grommet.svg",
+  "success_url": "/",
+  "env": {
+    "LDAP_URL": {
+      "description": "ldap url.",
+      "value": "ldap://ldap.grommet.io"
+    },
+    "LDAP_ORGANIZATION": {
+      "description": "ldap organization.",
+      "value": "grommet.io"
+    }
+  }
+}

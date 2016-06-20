@@ -51,7 +51,7 @@ export default class Group extends Component {
         const filter =
           `(|${owners.map(o => (`(${o.split(',')[0]})`)).join('')})`;
         const params = {
-          url: config.ldap_base_url,
+          url: config.ldapBaseUrl,
           base: `ou=${this.state.peopleScope.ou},o=${config.organization}`,
           scope: 'sub',
           filter: filter,
@@ -70,7 +70,7 @@ export default class Group extends Component {
 
   _getGroup (id) {
     const params = {
-      url: config.ldap_base_url,
+      url: config.ldapBaseUrl,
       base: `ou=${this.state.scope.ou},o=${config.organization}`,
       scope: 'sub',
       filter: `(${config.scopes.groups.attributes.id}=${id})`

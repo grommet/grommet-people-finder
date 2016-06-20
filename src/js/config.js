@@ -5,7 +5,7 @@ export function attributesToArray (attributes) {
 
 export default {
 
-  ldap_base_url: process.env.LDAP_URL || "ldap://ldap.grommet.io",
+  ldapBaseUrl: process.env.LDAP_URL || "ldap://ldap.grommet.io",
   organization: process.env.LDAP_ORGANIZATION || "grommet.io",
 
   scopes: {
@@ -13,7 +13,7 @@ export default {
       label: process.env.LDAP_PEOPLE_LABEL || "People",
       ou: process.env.LDAP_PEOPLE_OU || "people",
       colorIndex: process.env.LDAP_PEOPLE_COLOR_INDEX || "neutral-1",
-      attributes: {
+      attributes: process.env.LDAP_PEOPLE_ATTRIBUTES ? JSON.parse(process.env.LDAP_PEOPLE_ATTRIBUTES) : {
         id: process.env.LDAP_PEOPLE_ATTRIBUTE_ID || 'uid',
         assistant: process.env.LDAP_PEOPLE_ATTRIBUTE_ASSISTANT || 'assistant',
         thumbnail: process.env.LDAP_PEOPLE_ATTRIBUTE_THUMBNAIL || 'pictureThumbnailURI',
@@ -32,7 +32,7 @@ export default {
         workState: process.env.LDAP_PEOPLE_ATTRIBUTE_WORK_STATE || 'workState',
         workPostalCode: process.env.LDAP_PEOPLE_ATTRIBUTE_WORK_POSTAL_CODE || 'workPostalCode'
       },
-      details: process.env.LDAP_PEOPLE_DETAILS || {
+      details: process.env.LDAP_PEOPLE_DETAILS ? JSON.parse(process.env.LDAP_PEOPLE_DETAILS) : {
         'Employment': [
           {
             attributeDisplayName: 'Employee Number',
@@ -78,7 +78,7 @@ export default {
       label: process.env.LDAP_GROUPS_LABEL || "Groups",
       ou: process.env.LDAP_GROUPS_OU || "groups",
       colorIndex: process.env.LDAP_GROUPS_COLOR_INDEX || "neutral-2",
-      attributes: {
+      attributes: process.env.LDAP_GROUPS_ATTRIBUTES ? JSON.parse(process.env.LDAP_GROUPS_ATTRIBUTES) : {
         id: process.env.LDAP_GROUPS_ID || "cn",
         description: process.env.LDAP_GROUPS_DESCRIPTION || "description",
         owner: process.env.LDAP_GROUPS_OWNER || 'owner',
@@ -94,7 +94,7 @@ export default {
       label: process.env.LDAP_LOCATIONS_LABEL || "Locations",
       ou: process.env.LDAP_LOCATIONS_OU || "locations",
       colorIndex: process.env.LDAP_LOCATIONS_COLOR_INDEX || "neutral-3",
-      attributes: {
+      attributes: process.env.LDAP_LOCATIONS_ATTRIBUTES ? JSON.parse(process.env.LDAP_LOCATIONS_ATTRIBUTES) : {
         id: process.env.LDAP_LOCATIONS_ID || "lid",
         name: process.env.LDAP_LOCATIONS_NAME || 'cn',
         address: process.env.LDAP_LOCATIONS_ADDRESS || 'postalAddress',

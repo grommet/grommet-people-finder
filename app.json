@@ -8,7 +8,7 @@
   ],
   "website": "https://peoplefinder.grommet.io/",
   "repository": "https://github.com/grommet/grommet-people-finder",
-  "logo": "https://raw.githubusercontent.com/grommet/grommet/master/src/img/grommet.svg",
+  "logo": "https://s.gravatar.com/avatar/1ae6e30794833b80c3322dc8405c0a68",
   "success_url": "/",
   "env": {
     "LDAP_URL": {

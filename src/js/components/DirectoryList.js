@@ -73,7 +73,7 @@ export default class DirectoryList extends Component {
     }
 
     let params = {
-      url: config.ldap_base_url,
+      url: config.ldapBaseUrl,
       base: `ou=${this.props.scope.ou},o=${config.organization}`,
       scope: 'sub',
       filter: filter,

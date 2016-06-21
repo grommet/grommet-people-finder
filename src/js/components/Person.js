@@ -82,7 +82,7 @@ export default class Person extends Component {
 
   _getPerson (id) {
     const params = {
-      url: config.ldap_base_url,
+      url: config.ldapBaseUrl,
       base: 'ou=' + this.state.scope.ou + ',o=' + config.organization,
       scope: 'sub',
       filter: `(${config.scopes.people.attributes.id}=${id})`
@@ -98,7 +98,7 @@ export default class Person extends Component {
 
   _getLocation (workLocation) {
     const params = {
-      url: config.ldap_base_url,
+      url: config.ldapBaseUrl,
       base: workLocation,
       scope: 'sub'
     };

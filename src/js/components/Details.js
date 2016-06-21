@@ -49,7 +49,7 @@ export default class Details extends Component {
 
   _getAssistant (assistantDn) {
     const params = {
-      url: config.ldap_base_url,
+      url: config.ldapBaseUrl,
       base: assistantDn,
       scope: 'sub'
     };

@@ -48,7 +48,7 @@ export default class PersonGroups extends Component {
       this.setState({busy: true});
       const filter = `(&(objectClass=${config.scopes.groups.attributes.objectClass})(member=${props.person.dn}))`;
       const params = {
-        url: config.ldap_base_url,
+        url: config.ldapBaseUrl,
         base: `ou=${this.state.scope.ou},o=${config.organization}`,
         scope: 'sub',
         filter: filter,

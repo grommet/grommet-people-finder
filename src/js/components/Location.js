@@ -32,7 +32,7 @@ export default class LocationComponent extends Component {
 
   _getLocation (id) {
     const params = {
-      url: config.ldap_base_url,
+      url: config.ldapBaseUrl,
       base: `ou=${this.state.scope.ou},o=${config.organization}`,
       scope: 'sub',
       filter: `(${config.scopes.locations.attributes.id}=${id})`

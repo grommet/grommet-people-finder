@@ -53,7 +53,7 @@ export default class Organization extends Component {
 
   _getManager (managerDn) {
     const params = {
-      url: config.ldap_base_url,
+      url: config.ldapBaseUrl,
       base: managerDn,
       scope: 'sub'
     };
@@ -88,7 +88,7 @@ export default class Organization extends Component {
       this.setState({busy: true});
 
       const params = {
-        url: config.ldap_base_url,
+        url: config.ldapBaseUrl,
         base: `ou=${this.state.scope.ou},o=${config.organization}`,
         scope: 'sub',
         filter: `(&(${config.scopes.people.attributes.manager}=${props.person.dn}))`,

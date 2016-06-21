@@ -23,7 +23,7 @@
     "es6-promise": "^3.2.1",
     "express": "^4.13.4",
     "express-http-proxy": "^0.6.0",
-    "grommet": "grommet/grommet#stable",
+    "grommet": "https://github.com/grommet/grommet/tarball/stable",
     "gulp": "^3.9.1",
     "gulp-git": "^1.7.2",
     "gulp-nodemon": "^2.0.6",

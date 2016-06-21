@@ -1,6 +1,7 @@
 # grommet-people-finder
 
 [![Build Status](https://travis-ci.org/grommet/grommet-people-finder.svg?branch=master)](https://travis-ci.org/grommet/grommet-people-finder)
+
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/grommet/grommet-people-finder/tree/heroku)
 
 Connects with a LDAP server to display and search for People, Locations, and Groups of a given organization.

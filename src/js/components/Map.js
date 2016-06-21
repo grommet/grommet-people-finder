@@ -126,7 +126,10 @@ export default class Map extends Component {
       };
 
       Rest
-        .get("http://nominatim.openstreetmap.org/search", params)
+        .get(
+          `${window.location.protocol}//nominatim.openstreetmap.org/search`,
+          params
+        )
         .end(function (err, res) {
           if (! err && res.ok && res.body && res.body[0]) {
             const place = res.body[0];

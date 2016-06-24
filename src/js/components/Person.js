@@ -19,7 +19,7 @@ import Title from 'grommet/components/Title';
 import SearchIcon from 'grommet/components/icons/base/Search';
 import UserIcon from 'grommet/components/icons/base/User';
 import Details from './Details';
-import Logo from './Logo';
+import PeopleIcon from './PeopleIcon';
 import Map from './Map';
 import Organization from './Organization';
 import PersonGroups from './PersonGroups';
@@ -222,7 +222,7 @@ export default class Person extends Component {
         <Header large={true} pad={{horizontal: "medium"}} separator="bottom"
           justify="between">
           <Title onClick={this.props.onClose} responsive={false}>
-            <Logo />
+            <PeopleIcon />
             {appTitle}
           </Title>
           <Button icon={<SearchIcon />} onClick={this.props.onClose} />
@@ -312,12 +312,12 @@ export default class Person extends Component {
     let viewHeader = <Heading tag="h3">{viewLabel}</Heading>;
     if (this.state.responsive) {
       // on mobile, allow contact (main Person content) as a menu option
-      // and show logo with bolded viewLabel
+      // and show header with bolded viewLabel
       contactAnchor = <Anchor className={this.state.view === 'contact' ? 'active' : undefined} onClick={this._onContact} label="Contact" />;
       viewHeader = (
         <Box direction="row" responsive={false} align="center" pad={{between: "small"}}>
           <Title onClick={this.props.onClose} responsive={false}>
-            <Logo />
+            <PeopleIcon />
           </Title>
           <Heading tag="h3" strong={true}>{viewLabel}</Heading>
         </Box>

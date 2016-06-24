@@ -9,7 +9,7 @@ import Article from 'grommet/components/Article';
 import Section from 'grommet/components/Section';
 import Button from 'grommet/components/Button';
 import SearchIcon from 'grommet/components/icons/base/Search';
-import Logo from './Logo';
+import LocationsIcon from './LocationsIcon';
 import Map from './Map';
 import config from '../config';
 
@@ -78,7 +78,7 @@ export default class LocationComponent extends Component {
         <Header large={true} pad={{horizontal: "medium"}} separator="bottom"
           justify="between">
           <Title onClick={this.props.onClose} responsive={false}>
-            <Logo />
+            <LocationsIcon />
             {appTitle}
           </Title>
           <Button icon={<SearchIcon />} onClick={this.props.onClose} />

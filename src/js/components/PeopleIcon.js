@@ -5,11 +5,11 @@ import React, { Component, PropTypes } from 'react';
 export default class PeopleIcon extends Component {
 
   render () {
-    let className = 'logo-icon';
+    let className = 'grommetux-logo-icon';
     if (this.props.className) {
       className += ' ' + this.props.className;
     }
-    let stroke = '#00B388';
+    let stroke = '#865CD6';
     if (this.props.reverse) {
       stroke = '#ffffff';
     }

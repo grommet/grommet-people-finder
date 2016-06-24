@@ -12,7 +12,7 @@ import Button from 'grommet/components/Button';
 import SearchIcon from 'grommet/components/icons/base/Search';
 import PersonListItem from './PersonListItem';
 import BusyListItem from './BusyListItem';
-import Logo from './Logo';
+import GroupsIcon from './GroupsIcon';
 import config, { attributesToArray } from '../config';
 
 export default class Group extends Component {
@@ -121,7 +121,7 @@ export default class Group extends Component {
         <Header large={true} pad={{horizontal: "medium"}} separator="bottom"
           justify="between">
           <Title onClick={this.props.onClose} responsive={false}>
-            <Logo />
+            <GroupsIcon />
             {appTitle}
           </Title>
           <Button icon={<SearchIcon />} onClick={this.props.onClose} />

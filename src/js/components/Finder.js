@@ -11,7 +11,9 @@ import Section from 'grommet/components/Section';
 import Box from 'grommet/components/Box';
 import GrommetLogo from 'grommet/components/icons/Grommet';
 import FavoriteLogo from 'grommet/components/icons/base/Favorite';
-import Logo from './Logo';
+import PeopleIcon from './PeopleIcon';
+import GroupsIcon from './GroupsIcon';
+import LocationsIcon from './LocationsIcon';
 import config from '../config';
 
 export default class Finder extends Component {
@@ -40,8 +42,16 @@ export default class Finder extends Component {
 
   render () {
     let texture;
-    let colorIndex = this.props.scope.colorIndex;
     let footer;
+    let colorIndex = this.props.scope.colorIndex;
+    const currentScope = this.props.scope.ou;
+    let currentIcon = <PeopleIcon reverse={true} />;
+
+    if (currentScope === 'groups') {
+      currentIcon = <GroupsIcon reverse={true} />;
+    } else if (currentScope === 'locations') {
+      currentIcon = <LocationsIcon reverse={true} />;
+    }
 
     // use a random background image
     const imageIndex = ((new Date()).getTime() % 4) + 1;
@@ -80,7 +90,7 @@ export default class Finder extends Component {
           float={this.props.initial}
           colorIndex={colorIndex} splash={this.props.initial}
           responsive={false} justify="between">
-          <Menu inline={false} icon={<Logo reverse={true} />}
+          <Menu inline={false} icon={currentIcon}
             dropColorIndex={colorIndex}>
             {scopeAnchors}
           </Menu>

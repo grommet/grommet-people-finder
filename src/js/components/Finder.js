@@ -11,9 +11,9 @@ import Section from 'grommet/components/Section';
 import Box from 'grommet/components/Box';
 import GrommetLogo from 'grommet/components/icons/Grommet';
 import FavoriteLogo from 'grommet/components/icons/base/Favorite';
-import PeopleIcon from './PeopleIcon';
-import GroupsIcon from './GroupsIcon';
-import LocationsIcon from './LocationsIcon';
+import PeopleIcon from './icons/PeopleIcon';
+import GroupsIcon from './icons/GroupsIcon';
+import LocationsIcon from './icons/LocationsIcon';
 import config from '../config';
 
 export default class Finder extends Component {

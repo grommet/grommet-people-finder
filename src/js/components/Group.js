@@ -12,7 +12,7 @@ import Button from 'grommet/components/Button';
 import SearchIcon from 'grommet/components/icons/base/Search';
 import PersonListItem from './PersonListItem';
 import BusyListItem from './BusyListItem';
-import GroupsIcon from './GroupsIcon';
+import GroupsIcon from './icons/GroupsIcon';
 import config, { attributesToArray } from '../config';
 
 export default class Group extends Component {

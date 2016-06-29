@@ -19,7 +19,7 @@ import Title from 'grommet/components/Title';
 import SearchIcon from 'grommet/components/icons/base/Search';
 import UserIcon from 'grommet/components/icons/base/User';
 import Details from './Details';
-import PeopleIcon from './PeopleIcon';
+import PeopleIcon from './icons/PeopleIcon';
 import Map from './Map';
 import Organization from './Organization';
 import PersonGroups from './PersonGroups';

@@ -9,7 +9,7 @@ import Article from 'grommet/components/Article';
 import Section from 'grommet/components/Section';
 import Button from 'grommet/components/Button';
 import SearchIcon from 'grommet/components/icons/base/Search';
-import LocationsIcon from './LocationsIcon';
+import LocationsIcon from './icons/LocationsIcon';
 import Map from './Map';
 import config from '../config';
 

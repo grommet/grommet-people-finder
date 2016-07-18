@@ -12,6 +12,10 @@ If your existing LDAP structure is close to ours, it is possible you would only 
 
 If you don't have a LDAP server yet, you can refer to [grommet-ldap-server](https://github.com/grommet/grommet-ldap-server) for an example server that is in fact the one being used in this app.
 
+## Demo
+
+[Live demo](http://peoplefinder.grommet.io) of the Grommet PeopleFinder application.  Try searching for "Alan", "Bryan", "Eric", "Chris", or "Tracy".
+
 ## Usage
 
 To run this application, execute the following commands:

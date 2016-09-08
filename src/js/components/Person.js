@@ -263,11 +263,11 @@ export default class Person extends Component {
       <Article>
         {header}
         <Box direction={boxDirection} pad={contactPad} align="start"
-          flex={false}>
+          wrap={true}>
           <Box pad={contactContentsPad}>
             {image}
           </Box>
-          <Section pad={contactContentsPad} className="flex">
+          <Section pad={contactContentsPad}>
             <Heading tag="h1">
               {person[config.scopes.people.attributes.name]}
             </Heading>

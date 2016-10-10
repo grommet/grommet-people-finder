@@ -8,7 +8,7 @@ import Anchor from 'grommet/components/Anchor';
 import Footer from 'grommet/components/Footer';
 import Search from 'grommet/components/Search';
 import Section from 'grommet/components/Section';
-import Paragraph from 'grommet/components/Paragraph';
+import Label from 'grommet/components/Label';
 import Box from 'grommet/components/Box';
 import GrommetLogo from 'grommet/components/icons/Grommet';
 import FavoriteLogo from 'grommet/components/icons/base/Favorite';
@@ -69,11 +69,14 @@ export default class Finder extends Component {
           <Box pad={{vertical: "small"}}>
             <GrommetLogo />
           </Box>
-          <Paragraph size="small" margin="none">
-            Made with <FavoriteLogo /> by
-            the <a href="http://grommet.io" target="_blank">
-            Grommet team</a>.
-          </Paragraph>
+          <Box direction="row" align="center" responsive={false}
+            pad={{ between: 'small' }}>
+            <Label size="small" margin="none">Made with</Label>
+            <FavoriteLogo />
+            <Label size="small" margin="none">by the</Label>
+            <Anchor href="http://grommet.io" target="_blank">
+              Grommet team</Anchor>
+          </Box>
         </Footer>
       );
     }

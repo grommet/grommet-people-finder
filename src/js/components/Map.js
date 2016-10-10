@@ -153,7 +153,7 @@ export default class Map extends Component {
             console.log('!!! geocode response error', err, res);
             if (this.state.map) {
               this.state.map.remove();
-              findDOMNode(this._mapRef).className = "";
+              // findDOMNode(this._mapRef).className = "";
             }
             this.setState({map: null, busy: false});
           }
@@ -187,8 +187,7 @@ export default class Map extends Component {
       );
     }
     return (
-      <Box ref={ref => this._mapRef = ref} className={this.props.className}
-        flex={true}>
+      <Box ref={ref => this._mapRef = ref} className="map" flex={true}>
         {address}
       </Box>
     );

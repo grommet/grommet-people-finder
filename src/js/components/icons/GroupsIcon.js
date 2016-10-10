@@ -1,4 +1,5 @@
 // (C) Copyright 2014-2016 Hewlett Packard Enterprise Development LP
+/* eslint-disable max-len, react/self-closing-comp */
 
 import React, { Component, PropTypes } from 'react';
 import SVGIcon from 'grommet/components/SVGIcon';

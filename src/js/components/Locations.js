@@ -28,7 +28,9 @@ export default class Locations extends Component {
         filter = searchText;
       } else {
         searchText = searchText.replace(/\s+/g, '*');
-        filter = `(|(${config.scopes.locations.attributes.name}=*${searchText}*)(${config.scopes.locations.attributes.city}=*${searchText}*))`;
+        filter = `(|(${config.scopes.locations.attributes.name}` +
+          `=*${searchText}*)(${config.scopes.locations.attributes.city}` +
+          `=*${searchText}*))`;
       }
     }
     return filter;

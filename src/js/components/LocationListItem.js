@@ -10,7 +10,9 @@ const LocationListItem = (props) => {
     <ListItem justify="between" align="center" pad="medium"
       onClick={props.onClick}>
       <strong>{item[config.scopes.locations.attributes.name]}</strong>
-      <span className="secondary">{item[config.scopes.locations.attributes.city]}</span>
+      <span className="secondary">
+        {item[config.scopes.locations.attributes.city]}
+      </span>
     </ListItem>
   );
 };

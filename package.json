@@ -16,32 +16,32 @@
     "url": "https://github.com/grommet/grommet-people-finder.git"
   },
   "dependencies": {
-    "body-parser": "^1.15.0",
-    "compression": "^1.6.1",
-    "cookie-parser": "^1.4.1",
-    "del": "^2.2.0",
-    "es6-promise": "^3.2.1",
-    "express": "^4.13.4",
-    "express-http-proxy": "^0.6.0",
+    "body-parser": "^1.15.2",
+    "compression": "^1.6.2",
+    "cookie-parser": "^1.4.3",
+    "del": "^2.2.2",
+    "es6-promise": "^4.0.5",
+    "express": "^4.14.0",
+    "express-http-proxy": "^0.10.0",
     "grommet": "https://github.com/grommet/grommet/tarball/stable",
     "gulp": "^3.9.1",
-    "gulp-git": "^1.7.2",
-    "gulp-nodemon": "^2.0.6",
-    "json-server": "^0.8.8",
-    "json-stringify-pretty-compact": "^1.0.1",
+    "gulp-git": "^1.11.3",
+    "gulp-nodemon": "^2.2.1",
+    "json-server": "^0.8.22",
+    "json-stringify-pretty-compact": "^1.0.2",
     "ldapjs": "^1.0.0",
-    "leaflet": "^0.7.7",
-    "lodash": "^4.5.0",
+    "leaflet": "^1.0.1",
+    "lodash": "^4.16.4",
     "mkdirp": "^0.5.1",
-    "morgan": "^1.6.1",
-    "request": "^2.69.0",
-    "serve-static": "^1.10.2",
+    "morgan": "^1.7.0",
+    "request": "^2.75.0",
+    "serve-static": "^1.11.1",
     "whatwg-fetch": "^1.0.0",
-    "ws": "^1.0.1"
+    "ws": "^1.1.1"
   },
   "devDependencies": {
-    "grommet-toolbox": "^0.1.14",
-    "yargs": "^3.30.0"
+    "grommet-toolbox": "^0.4.5",
+    "yargs": "^6.0.0"
   },
   "scripts": {
     "start": "node server/server.js"

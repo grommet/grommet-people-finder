@@ -1,7 +1,6 @@
 // (C) Copyright 2014-2016 Hewlett Packard Enterprise Development LP
 
 import React, { Component, PropTypes } from 'react';
-import { FormattedMessage } from 'react-intl';
 import Responsive from 'grommet/utils/Responsive';
 import { headers, buildQuery, processStatus } from 'grommet/utils/Rest';
 import Anchor from 'grommet/components/Anchor';
@@ -13,11 +12,11 @@ import Heading from 'grommet/components/Heading';
 import Menu from 'grommet/components/Menu';
 import Paragraph from 'grommet/components/Paragraph';
 import Section from 'grommet/components/Section';
-import Sidebar from 'grommet/components/Sidebar';
 import Split from 'grommet/components/Split';
 import Title from 'grommet/components/Title';
 import SearchIcon from 'grommet/components/icons/base/Search';
 import UserIcon from 'grommet/components/icons/base/User';
+import FormattedMessage from 'grommet/components/FormattedMessage';
 import Details from './Details';
 import PeopleIcon from './icons/PeopleIcon';
 import Map from './Map';
@@ -154,7 +153,8 @@ export default class Person extends Component {
     const personHoursOffset = Number.parseInt(personTimezone.substr(1, 2));
     // taking last two "digits" from string to convert to decimal
     const personMinutesOffset = Number.parseInt(personTimezone.substr(-2)) / 60;
-    const personTimezoneOffset = (personHoursOffset + personMinutesOffset) * offsetSign;
+    const personTimezoneOffset =
+      (personHoursOffset + personMinutesOffset) * offsetSign;
     // converting personTimezoneOffset from hours to milliseconds
     const personDate = new Date(localUTC + (3600000 * personTimezoneOffset));
 
@@ -165,7 +165,9 @@ export default class Person extends Component {
     const person = this.state.person;
     const time = result.time;
     const personHour = Number.parseInt(time.substr(11, 2));
-    const currentPersonTime = this._formatHourInCity(personHour, person[config.scopes.people.attributes.workCity]);
+    const currentPersonTime =
+      this._formatHourInCity(personHour,
+        person[config.scopes.people.attributes.workCity]);
     this.setState({currentPersonTime: currentPersonTime, error: null});
   }
 
@@ -187,7 +189,8 @@ export default class Person extends Component {
         .then(processStatus)
         .then((response) => response.json())
         .then(this._onTimezoneResponse)
-        .catch(error => this.setState({ currentPersonTime: currentPersonTime, error: error }));
+        .catch(error => this.setState({
+          currentPersonTime: currentPersonTime, error: error }));
     } else {
       // could not find latitude + longitude, or timeZone
       // properties from LDAP location query
@@ -197,8 +200,11 @@ export default class Person extends Component {
         const personTimezone = location.timeZone;
         const personHour = this._getHourFromLDAPTimezone(personTimezone);
         // formatting timezone from LDAP
-        const formattedPersonTimezone = `${personTimezone.substr(0,3)}:${personTimezone.substr(3,2)}`;
-        currentPersonTime = this._formatHourInCity(personHour, person[config.scopes.people.attributes.workCity], formattedPersonTimezone);
+        const formattedPersonTimezone =
+          `${personTimezone.substr(0,3)}:${personTimezone.substr(3,2)}`;
+        currentPersonTime = this._formatHourInCity(personHour,
+          person[config.scopes.people.attributes.workCity],
+          formattedPersonTimezone);
       }
 
       this.setState({currentPersonTime: currentPersonTime});
@@ -213,13 +219,14 @@ export default class Person extends Component {
 
     let personTitle;
     if (person[config.scopes.people.attributes.title]) {
-      personTitle = person[config.scopes.people.attributes.title].replace(/&amp;/g, '&');
+      personTitle =
+        person[config.scopes.people.attributes.title].replace(/&amp;/g, '&');
     }
 
     let header;
     if ('contact' !== this.state.view) {
       header = (
-        <Header large={true} pad={{horizontal: "medium"}} separator="bottom"
+        <Header size="large" pad={{ horizontal: "medium" }} separator="bottom"
           justify="between">
           <Title onClick={this.props.onClose} responsive={false}>
             <PeopleIcon />
@@ -244,7 +251,8 @@ export default class Person extends Component {
     let phoneNode;
     const phone = person[config.scopes.people.attributes.telephoneNumber];
     if (! phone || '+1' === phone) {
-      phoneNode = <span className="secondary">Phone number not available.</span>;
+      phoneNode =
+        <span className="secondary">Phone number not available.</span>;
     } else {
       phoneNode = <Anchor href={"tel:" + phone}>{phone}</Anchor>;
     }
@@ -252,7 +260,9 @@ export default class Person extends Component {
     let image;
     if (person[config.scopes.people.attributes.picture]) {
       image = (
-        <img className="avatar" src={person[config.scopes.people.attributes.picture] || 'img/no-picture.png'}
+        <img className="avatar"
+          src={person[config.scopes.people.attributes.picture] ||
+            'img/no-picture.png'}
           alt="picture" />
       );
     } else {
@@ -260,10 +270,10 @@ export default class Person extends Component {
     }
 
     contact = (
-      <Article>
+      <Article flex={true}>
         {header}
         <Box direction={boxDirection} pad={contactPad} align="start"
-          wrap={true}>
+          flex={false}>
           <Box pad={contactContentsPad}>
             {image}
           </Box>
@@ -273,7 +283,10 @@ export default class Person extends Component {
             </Heading>
             <Paragraph margin="none">{personTitle}</Paragraph>
             <Paragraph size="large" margin="small">
-              <Anchor href={"mailto:" + person[config.scopes.people.attributes.id]}>{person[config.scopes.people.attributes.id]}</Anchor>
+              <Anchor
+                href={"mailto:" + person[config.scopes.people.attributes.id]}>
+                {person[config.scopes.people.attributes.id]}
+              </Anchor>
             </Paragraph>
             <Paragraph size="large" margin="small">
               {phoneNode}
@@ -283,7 +296,7 @@ export default class Person extends Component {
             </Paragraph>
           </Section>
         </Box>
-        <Map title={person[config.scopes.people.attributes.workName]} className="flex"
+        <Map title={person[config.scopes.people.attributes.workName]}
           street={person[config.scopes.people.attributes.workStreet]}
           city={person[config.scopes.people.attributes.workCity]}
           state={person[config.scopes.people.attributes.workState]}
@@ -302,7 +315,9 @@ export default class Person extends Component {
       viewLabel = <FormattedMessage id="Groups" defaultMessage="Groups" />;
     } else if ('organization' === this.state.view) {
       view = <Organization person={person} onSelect={this.props.onSelect} />;
-      viewLabel = <FormattedMessage id="Organization" defaultMessage="Organization" />;
+      viewLabel = (
+        <FormattedMessage id="Organization" defaultMessage="Organization" />
+      );
     } else if ('contact' === this.state.view) {
       view = contact;
       viewLabel = "Contact";
@@ -313,9 +328,13 @@ export default class Person extends Component {
     if (this.state.responsive) {
       // on mobile, allow contact (main Person content) as a menu option
       // and show header with bolded viewLabel
-      contactAnchor = <Anchor className={this.state.view === 'contact' ? 'active' : undefined} onClick={this._onContact} label="Contact" />;
+      contactAnchor = (
+        <Anchor className={this.state.view === 'contact' ?
+          'active' : undefined} onClick={this._onContact} label="Contact" />
+      );
       viewHeader = (
-        <Box direction="row" responsive={false} align="center" pad={{between: "small"}}>
+        <Box direction="row" responsive={false} align="center"
+          pad={{ between: "small" }}>
           <Title onClick={this.props.onClose} responsive={false}>
             <PeopleIcon />
           </Title>
@@ -327,24 +346,29 @@ export default class Person extends Component {
     return (
       <Split flex="both" separator={true}>
         {contact}
-        <Sidebar>
-          <Header large={true} pad={{horizontal: "medium"}} justify="between" separator="bottom">
+        <Box>
+          <Header size="large" pad={{ horizontal: "medium" }}
+            justify="between" separator="bottom">
             {viewHeader}
             <Menu label="Menu" dropAlign={{right: 'right'}}>
               {contactAnchor}
-              <Anchor className={this.state.view === 'organization' ? 'active' : undefined} onClick={this._onOrganization}>
-                <FormattedMessage id="Organization" defaultMessage="Organization" />
+              <Anchor className={this.state.view === 'organization' ?
+                'active' : undefined} onClick={this._onOrganization}>
+                <FormattedMessage id="Organization"
+                  defaultMessage="Organization" />
               </Anchor>
-              <Anchor className={this.state.view === 'details' ? 'active' : undefined} onClick={this._onDetails}>
+              <Anchor className={this.state.view === 'details' ?
+                'active' : undefined} onClick={this._onDetails}>
                 <FormattedMessage id="Details" defaultMessage="Details" />
               </Anchor>
-              <Anchor className={this.state.view === 'groups' ? 'active' : undefined} onClick={this._onGroups}>
+              <Anchor className={this.state.view === 'groups' ?
+                'active' : undefined} onClick={this._onGroups}>
                 <FormattedMessage id="Groups" defaultMessage="Groups" />
               </Anchor>
             </Menu>
           </Header>
           {view}
-        </Sidebar>
+        </Box>
       </Split>
     );
   }

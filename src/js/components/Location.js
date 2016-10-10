@@ -4,10 +4,13 @@ import React, { Component, PropTypes } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { headers, buildQuery, processStatus } from 'grommet/utils/Rest';
 import Header from 'grommet/components/Header';
+import Heading from 'grommet/components/Heading';
 import Title from 'grommet/components/Title';
 import Article from 'grommet/components/Article';
 import Section from 'grommet/components/Section';
+import Paragraph from 'grommet/components/Paragraph';
 import Button from 'grommet/components/Button';
+import Anchor from 'grommet/components/Anchor';
 import SearchIcon from 'grommet/components/icons/base/Search';
 import LocationsIcon from './icons/LocationsIcon';
 import Map from './Map';
@@ -48,7 +51,8 @@ export default class LocationComponent extends Component {
 
   render () {
     const appTitle = (
-      <FormattedMessage id="Locations Finder" defaultMessage="Locations Finder" />
+      <FormattedMessage id="Locations Finder"
+        defaultMessage="Locations Finder" />
     );
     const loc = this.state.location;
     let address;
@@ -61,21 +65,23 @@ export default class LocationComponent extends Component {
     let map;
     if (loc[config.scopes.locations.attributes.country]) {
       map = (
-        <Map title={loc[config.scopes.locations.attributes.category] || loc[config.scopes.locations.attributes.name]}
+        <Map title={loc[config.scopes.locations.attributes.category] ||
+            loc[config.scopes.locations.attributes.name]}
           street={loc[config.scopes.locations.attributes.street]}
           city={loc[config.scopes.locations.attributes.city]}
           state={loc[config.scopes.locations.attributes.state]}
           postalCode={loc[config.scopes.locations.attributes.postalCode]}
-          country={loc[config.scopes.locations.attributes.country]} className="flex" />
+          country={loc[config.scopes.locations.attributes.country]} />
       );
     }
 
-    // NOTE: ED latitude and longitude aren't accurate. Removed the following from Map use:
+    // NOTE: ED latitude and longitude aren't accurate.
+    // Removed the following from Map use:
     // latitude={loc.latitude} longitude={loc.longitude}
 
     return (
-      <Article full={true}>
-        <Header large={true} pad={{horizontal: "medium"}} separator="bottom"
+      <Article>
+        <Header size="large" pad={{ horizontal: "medium" }} separator="bottom"
           justify="between">
           <Title onClick={this.props.onClose} responsive={false}>
             <LocationsIcon />
@@ -84,17 +90,25 @@ export default class LocationComponent extends Component {
           <Button icon={<SearchIcon />} onClick={this.props.onClose} />
         </Header>
         <Section pad="medium">
-          <Header tag="h1" justify="between">
-            <span>{loc[config.scopes.locations.attributes.name]}</span>
-            <span className="secondary">
+          <Header justify="between">
+            <Heading tag="h1">
+              {loc[config.scopes.locations.attributes.name]}
+            </Heading>
+            <Heading tag="h1" className="secondary">
               {loc[config.scopes.locations.attributes.id]}
-            </span>
+            </Heading>
           </Header>
           <address>{address}</address>
-          <h3><a href={"tel:" + loc[config.scopes.locations.attributes.telephoneNumber]}>
-            {loc[config.scopes.locations.attributes.telephoneNumber]}
-          </a></h3>
-          <p>{loc[config.scopes.locations.attributes.category]}</p>
+          <Heading tag="h3">
+            <Anchor href={
+                "tel:" + loc[config.scopes.locations.attributes.telephoneNumber]
+              }>
+              {loc[config.scopes.locations.attributes.telephoneNumber]}
+            </Anchor>
+          </Heading>
+          <Paragraph>
+            {loc[config.scopes.locations.attributes.category]}
+          </Paragraph>
         </Section>
         {map}
       </Article>

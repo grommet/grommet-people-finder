@@ -139,7 +139,8 @@ export default class DirectoryList extends Component {
     } else if (searchText && results.length === 0) {
       const noMatchingLabel = `No matching ${scope.label.toLowerCase()}`;
       empty = (
-        <FormattedMessage id={noMatchingLabel} defaultMessage={noMatchingLabel} />
+        <FormattedMessage id={noMatchingLabel}
+          defaultMessage={noMatchingLabel} />
       );
       first = true;
     } else {

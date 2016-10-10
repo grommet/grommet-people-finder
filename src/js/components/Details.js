@@ -5,17 +5,25 @@ import { headers, buildQuery, processStatus } from 'grommet/utils/Rest';
 import Article from 'grommet/components/Article';
 import Section from 'grommet/components/Section';
 import Heading from 'grommet/components/Heading';
-import Attribute from 'grommet/components/Attribute';
+import Box from 'grommet/components/Box';
+import Label from 'grommet/components/Label';
 import config from '../config';
 
 const peopleScope = config.scopes.people;
+
+const Attribute = (props) => (
+  <Box>
+    <Label size="small">{props.label}</Label>
+    {props.children}
+  </Box>
+);
 
 export default class Details extends Component {
 
   constructor () {
     super();
     this._getAssistant = this._getAssistant.bind(this);
-    this.state = {assistant: undefined};
+    this.state = {assistant: {}};
   }
 
   componentDidMount () {
@@ -38,11 +46,7 @@ export default class Details extends Component {
       value = 'N/A';
     }
 
-    result = (
-      <Attribute key={`${label}${value}`} label={label}>
-        {value}
-      </Attribute>
-    );
+    result = <Attribute label={label}>{value}</Attribute>;
 
     return result;
   }
@@ -70,7 +74,8 @@ export default class Details extends Component {
       assistant = (
         <Section>
           <Heading strong={true} tag="h3" separator="top">Assistant</Heading>
-          {this._renderAttribute("", this.state.assistant[peopleScope.attributes.name])}
+          {this._renderAttribute("",
+            this.state.assistant[peopleScope.attributes.name])}
         </Section>
       );
     }

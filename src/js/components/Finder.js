@@ -8,6 +8,7 @@ import Anchor from 'grommet/components/Anchor';
 import Footer from 'grommet/components/Footer';
 import Search from 'grommet/components/Search';
 import Section from 'grommet/components/Section';
+import Paragraph from 'grommet/components/Paragraph';
 import Box from 'grommet/components/Box';
 import GrommetLogo from 'grommet/components/icons/Grommet';
 import FavoriteLogo from 'grommet/components/icons/base/Favorite';
@@ -45,12 +46,14 @@ export default class Finder extends Component {
     let footer;
     let colorIndex = this.props.scope.colorIndex;
     const currentScope = this.props.scope.ou;
-    let currentIcon = <PeopleIcon reverse={true} />;
+    let currentIcon;
 
     if (currentScope === 'groups') {
       currentIcon = <GroupsIcon reverse={true} />;
     } else if (currentScope === 'locations') {
       currentIcon = <LocationsIcon reverse={true} />;
+    } else {
+      currentIcon = <PeopleIcon reverse={true} />;
     }
 
     // use a random background image
@@ -61,20 +64,21 @@ export default class Finder extends Component {
       colorIndex = "neutral-1-a";
       footer = (
         <Footer float={true} colorIndex="grey-3-a"
-          pad={{vertical: "small", horizontal: "medium", between: "medium"}} wrap={true} direction="row" justify="between" align="center">
-          <Box pad={{vertical: "small", between: "small"}} align='center'
-            direction="row">
+          pad={{vertical: "small", horizontal: "medium", between: "medium"}}
+          wrap={true} direction="row" justify="between" align="center">
+          <Box pad={{vertical: "small"}}>
             <GrommetLogo />
           </Box>
-          <Box pad={{vertical: "small", between: "small"}} align='center'
-            direction='row' responsive={false}>
-            <span>Made with</span><FavoriteLogo /> <span>by the <a href="http://grommet.io" target="_blank">Grommet team</a></span>.
-          </Box>
+          <Paragraph size="small" margin="none">
+            Made with <FavoriteLogo /> by
+            the <a href="http://grommet.io" target="_blank">
+            Grommet team</a>.
+          </Paragraph>
         </Footer>
       );
     }
 
-    var scopeAnchors = Object.keys(config.scopes).map(key => {
+    const scopeAnchors = Object.keys(config.scopes).map(key => {
       const scope = config.scopes[key];
       return (
         <Anchor key={key} onClick={this._onScope.bind(this, scope)}>
@@ -85,8 +89,8 @@ export default class Finder extends Component {
 
     return (
       <Section texture={texture} full={true} pad="none">
-        <Header key="header" large={true}
-          pad={{horizontal: "medium", between: "small"}}
+        <Header key="header" size="large"
+          pad={{ horizontal: "medium", between: "small" }}
           float={this.props.initial}
           colorIndex={colorIndex} splash={this.props.initial}
           responsive={false} justify="between">
@@ -94,13 +98,10 @@ export default class Finder extends Component {
             dropColorIndex={colorIndex}>
             {scopeAnchors}
           </Menu>
-          <Box className="flex" direction="row" responsive={false}
-            align="center" justify="end">
-            <Search ref="search" inline={true} responsive={false} className="flex"
-              placeHolder="Search"
-              value={this.props.searchText}
-              onDOMChange={this._onSearchDOMChange} />
-          </Box>
+          <Search ref="search" inline={true} responsive={false} fill={true}
+            size="medium" placeHolder="Search"
+            defaultValue={this.props.searchText}
+            onDOMChange={this._onSearchDOMChange} />
         </Header>
         {this.props.children}
         {footer}

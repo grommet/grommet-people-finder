@@ -41,7 +41,8 @@ export default class Organization extends Component {
       managers.unshift(manager);
       this.setState({managers: managers, error: null});
       // 20 limit is to guard against bugs in the code
-      if (manager.manager && manager.manager !== manager.dn && managers.length <= 20) {
+      if (manager.manager && manager.manager !== manager.dn &&
+        managers.length <= 20) {
         this._getManager(manager.manager);
       } else {
         this.setState({busy: false});
@@ -91,7 +92,8 @@ export default class Organization extends Component {
         url: config.ldapBaseUrl,
         base: `ou=${this.state.scope.ou},o=${config.organization}`,
         scope: 'sub',
-        filter: `(&(${config.scopes.people.attributes.manager}=${props.person.dn}))`,
+        filter: `(&(${config.scopes.people.attributes.manager}` +
+          `=${props.person.dn}))`,
         attributes: attributesToArray(this.state.scope.attributes)
       };
       const options = { method: 'GET', headers: headers };
@@ -131,7 +133,6 @@ export default class Organization extends Component {
             item={item} onClick={this._onSelect.bind(this, item)} />
         ));
       }
-      // managers.push(<PersonListItem key={person.uid} item={person} colorIndex="light-2"/>);
     }
 
     let image;

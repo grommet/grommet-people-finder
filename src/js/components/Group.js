@@ -4,11 +4,14 @@ import React, { Component, PropTypes } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { headers, buildQuery, processStatus } from 'grommet/utils/Rest';
 import Header from 'grommet/components/Header';
+import Heading from 'grommet/components/Heading';
 import Title from 'grommet/components/Title';
 import Article from 'grommet/components/Article';
 import Section from 'grommet/components/Section';
+import Paragraph from 'grommet/components/Paragraph';
 import List from 'grommet/components/List';
 import Button from 'grommet/components/Button';
+import Anchor from 'grommet/components/Anchor';
 import SearchIcon from 'grommet/components/icons/base/Search';
 import PersonListItem from './PersonListItem';
 import BusyListItem from './BusyListItem';
@@ -62,7 +65,8 @@ export default class Group extends Component {
         fetch(`/ldap/${query}`, options)
         .then(processStatus)
         .then(response => response.json())
-        .then(result => this.setState({owners: result, error: null, busy: false}))
+        .then(result => this.setState({
+          owners: result, error: null, busy: false}))
         .catch(error => this.setState({owners: [], error: error, busy: false}));
       }
     }
@@ -100,7 +104,9 @@ export default class Group extends Component {
       if (groupMail) {
         mails = Array.isArray(groupMail) ? groupMail : [groupMail];
         mails = mails.map(mail => (
-          <h2 key={mail}><a href={"mailto:" + mail}>{mail}</a></h2>
+          <Heading tag="h2" key={mail}>
+            <Anchor href={"mailto:" + mail}>{mail}</Anchor>
+          </Heading>
         ));
       }
     }
@@ -118,7 +124,7 @@ export default class Group extends Component {
 
     return (
       <Article>
-        <Header large={true} pad={{horizontal: "medium"}} separator="bottom"
+        <Header size="large" pad={{horizontal: "medium"}} separator="bottom"
           justify="between">
           <Title onClick={this.props.onClose} responsive={false}>
             <GroupsIcon />
@@ -127,15 +133,19 @@ export default class Group extends Component {
           <Button icon={<SearchIcon />} onClick={this.props.onClose} />
         </Header>
         <Section pad="medium">
-          <Header tag="h1" justify="between">
+          <Heading tag="h1">
             {group[config.scopes.groups.attributes.id]}
-          </Header>
-          <p>{group[config.scopes.groups.attributes.description]}</p>
+          </Heading>
+          <Paragraph>
+            {group[config.scopes.groups.attributes.description]}
+          </Paragraph>
           {mails}
         </Section>
-        <Header key="label" tag="h3" pad="medium">
-          <FormattedMessage id="Owners" defaultMessage="Owners"
-            count={owners.length} />
+        <Header pad="medium">
+          <Heading tag="h3" margin="none">
+            <FormattedMessage id="Owners" defaultMessage="Owners"
+              count={owners.length} />
+          </Heading>
         </Header>
         <List>
           {ownerItems}

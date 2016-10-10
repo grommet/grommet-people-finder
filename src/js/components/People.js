@@ -31,7 +31,9 @@ export default class People extends Component {
         if (searchText.indexOf(',') !== -1) {
           searchText = searchText.replace(/(.+),\s*(.+)/, "$2 $1");
         }
-        filter = `(&(|(${config.scopes.people.attributes.name}=*${searchText}*)(${config.scopes.people.attributes.id}=*${searchText}*)))`;
+        filter = `(&(|(${config.scopes.people.attributes.name}` +
+          `=*${searchText}*)(${config.scopes.people.attributes.id}` +
+          `=*${searchText}*)))`;
       }
     }
     return filter;

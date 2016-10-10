@@ -46,7 +46,9 @@ export default class PersonGroups extends Component {
     this.setState({groups: [], busy: true});
     if (props.person.dn) {
       this.setState({busy: true});
-      const filter = `(&(objectClass=${config.scopes.groups.attributes.objectClass})(member=${props.person.dn}))`;
+      const filter =
+        `(&(objectClass=${config.scopes.groups.attributes.objectClass})` +
+        `(member=${props.person.dn}))`;
       const params = {
         url: config.ldapBaseUrl,
         base: `ou=${this.state.scope.ou},o=${config.organization}`,
@@ -77,7 +79,8 @@ export default class PersonGroups extends Component {
     } else if (!groups || groups.length === 0) {
       items = (
         <Box pad='medium'>
-          {`${person[config.scopes.people.attributes.name]} is not assigned to any group.`}
+          {`${person[config.scopes.people.attributes.name]} is not ` +
+          `assigned to any group.`}
         </Box>
       );
     } else {

@@ -1,8 +1,10 @@
 // (C) Copyright 2014-2016 Hewlett Packard Enterprise Development LP
 
 import React, { Component, PropTypes } from 'react';
+import {findDOMNode} from 'react-dom';
 import Leaflet from 'leaflet';
 import Section from 'grommet/components/Section';
+import Box from 'grommet/components/Box';
 import Rest from 'grommet/utils/Rest';
 
 export default class Map extends Component {
@@ -18,25 +20,27 @@ export default class Map extends Component {
 
   componentDidMount () {
     if (! this.state.map) {
-      const mapElement = this.refs.map;
-      const options = {
-        touchZoom: false,
-        scrollWheelZoom: false,
-        zoom: 5
-      };
-      const map = Leaflet.map(mapElement, options);
-
-      // vertically centering map popup
-      if (!this._onPopupOpen) {
-        this._onPopupOpen = (event) => {
-          let px = map.project(event.popup._latlng);
-          px.y -= event.popup._container.clientHeight / 2;
-          map.panTo(map.unproject(px), {animate: true});
+      const mapElement = findDOMNode(this._mapRef);
+      if (mapElement) {
+        const options = {
+          touchZoom: false,
+          scrollWheelZoom: false,
+          zoom: 5
         };
-        map.on('popupopen', this._onPopupOpen);
-      }
+        const map = Leaflet.map(mapElement, options);
 
-      this.setState({map: map});
+        // vertically centering map popup
+        if (!this._onPopupOpen) {
+          this._onPopupOpen = (event) => {
+            let px = map.project(event.popup._latlng);
+            px.y -= event.popup._container.clientHeight / 2;
+            map.panTo(map.unproject(px), {animate: true});
+          };
+          map.on('popupopen', this._onPopupOpen);
+        }
+
+        this.setState({map: map});
+      }
     }
 
     if (! this.state.latitude || ! this.state.longitude) {
@@ -68,17 +72,22 @@ export default class Map extends Component {
 
   _setMap (mapSize) {
     const map = this.state.map;
-    map.setView([this.state.latitude, this.state.longitude], 5); //mapSize || 14);
-    Leaflet.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
-      attribution: '&copy;OpenStreetMap, &copy;CartoDB'
-    }).addTo(map);
-    const circle = Leaflet.circleMarker([this.state.latitude, this.state.longitude], {
-      color: '#FF8D6D',
-      opacity: 0.8,
-      fillOpacity: 0.8
-    }).addTo(map);
+    map.setView([this.state.latitude, this.state.longitude], 5);
+    Leaflet.tileLayer(
+      'http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+        attribution: '&copy;OpenStreetMap, &copy;CartoDB'
+      }).addTo(map);
+    const circle = Leaflet.circleMarker(
+      [this.state.latitude, this.state.longitude], {
+        color: '#FF8D6D',
+        opacity: 0.8,
+        fillOpacity: 0.8
+      }).addTo(map);
 
-    const directionsLink = `<br/><a href="http://maps.google.com/maps?saddr=${this.state.latitude},${this.state.longitude}" target="_blank"><span>(Directions)</span></a>`;
+    const directionsLink =
+      `<br/><a href="http://maps.google.com/maps?` +
+      `saddr=${this.state.latitude},${this.state.longitude}" ` +
+      `target="_blank"><span>(Directions)</span></a>`;
     const address = `<h5><strong>${this.props.title}</strong></h5>
       ${this._renderAddress().join('<br/>')}
       ${directionsLink}`;
@@ -98,7 +107,8 @@ export default class Map extends Component {
         this.setState({busy: true, place: null});
 
         if (props.street) {
-          params.street = props.street.replace(/.+? \$ /g, '').replace('  BP1220', '');
+          params.street =
+            props.street.replace(/.+? \$ /g, '').replace('  BP1220', '');
         }
 
         if (props.postalCode) {
@@ -143,7 +153,7 @@ export default class Map extends Component {
             console.log('!!! geocode response error', err, res);
             if (this.state.map) {
               this.state.map.remove();
-              this.refs.map.className = "";
+              findDOMNode(this._mapRef).className = "";
             }
             this.setState({map: null, busy: false});
           }
@@ -177,9 +187,10 @@ export default class Map extends Component {
       );
     }
     return (
-      <div ref="map" id="map" className={this.props.className}>
+      <Box ref={ref => this._mapRef = ref} className={this.props.className}
+        flex={true}>
         {address}
-      </div>
+      </Box>
     );
   }
 

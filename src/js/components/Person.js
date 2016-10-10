@@ -270,7 +270,7 @@ export default class Person extends Component {
     }
 
     contact = (
-      <Article flex={true}>
+      <Article full="vertical">
         {header}
         <Box direction={boxDirection} pad={contactPad} align="start"
           flex={false}>

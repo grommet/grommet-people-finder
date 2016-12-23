@@ -27,7 +27,7 @@
     "gulp": "^3.9.1",
     "gulp-git": "^1.11.3",
     "gulp-nodemon": "^2.2.1",
-    "json-server": "^0.8.22",
+    "json-server": "^0.9.4",
     "json-stringify-pretty-compact": "^1.0.2",
     "ldapjs": "^1.0.0",
     "leaflet": "^1.0.1",
@@ -36,12 +36,12 @@
     "morgan": "^1.7.0",
     "request": "^2.75.0",
     "serve-static": "^1.11.1",
-    "whatwg-fetch": "^1.0.0",
+    "whatwg-fetch": "^2.0.1",
     "ws": "^1.1.1"
   },
   "devDependencies": {
-    "grommet-toolbox": "^0.4.5",
-    "yargs": "^6.0.0"
+    "grommet-toolbox": "^1.1.0",
+    "yargs": "^6.5.0"
   },
   "scripts": {
     "start": "node server/server.js"

@@ -1,110 +1,115 @@
 // (C) Copyright 2014-2016 Hewlett Packard Enterprise Development LP
 
-import React, { Component, PropTypes } from 'react';
-import {findDOMNode} from 'react-dom';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { findDOMNode } from 'react-dom';
 import Leaflet from 'leaflet';
 import Section from 'grommet/components/Section';
 import Box from 'grommet/components/Box';
 import Rest from 'grommet/utils/Rest';
 
 export default class Map extends Component {
-
-  constructor (props) {
+  constructor(props) {
     super(props);
     this.state = {
       busy: false,
       latitude: this.props.latitude,
-      longitude: this.props.longitude
+      longitude: this.props.longitude,
     };
   }
 
-  componentDidMount () {
-    if (! this.state.map) {
-      const mapElement = findDOMNode(this._mapRef);
+  componentDidMount() {
+    if (!this.state.map) {
+      const mapElement = findDOMNode(this.mapRef);
       if (mapElement) {
         const options = {
           touchZoom: false,
           scrollWheelZoom: false,
-          zoom: 5
+          zoom: 5,
         };
         const map = Leaflet.map(mapElement, options);
 
         // vertically centering map popup
-        if (!this._onPopupOpen) {
-          this._onPopupOpen = (event) => {
-            let px = map.project(event.popup._latlng);
+        if (!this.onPopupOpen) {
+          this.onPopupOpen = (event) => {
+            /* eslint-disable no-underscore-dangle */
+            const px = map.project(event.popup._latlng);
             px.y -= event.popup._container.clientHeight / 2;
-            map.panTo(map.unproject(px), {animate: true});
+            map.panTo(map.unproject(px), { animate: true });
+            /* eslint-enable no-underscore-dangle */
           };
-          map.on('popupopen', this._onPopupOpen);
+          map.on('popupopen', this.onPopupOpen);
         }
 
-        this.setState({map: map});
+        // TODO: review this logic
+        /* eslint-disable react/no-did-mount-set-state */
+        this.setState({ map });
+        /* eslint-enable react/no-did-mount-set-state */
       }
     }
 
-    if (! this.state.latitude || ! this.state.longitude) {
-      this._getGeocode(this.props);
+    if (!this.state.latitude || !this.state.longitude) {
+      this.getGeocode(this.props);
     } else {
-      this._setMap();
+      this.setMap();
     }
   }
 
-  componentWillReceiveProps (nextProps) {
+  componentWillReceiveProps(nextProps) {
     this.setState({
       latitude: nextProps.latitude,
-      longitude: nextProps.longitude
+      longitude: nextProps.longitude,
     }, () => {
-      if (! this.state.latitude || ! this.state.longitude) {
-        this._getGeocode(nextProps);
+      if (!this.state.latitude || !this.state.longitude) {
+        this.getGeocode(nextProps);
       } else {
-        this._setMap();
+        this.setMap();
       }
     });
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     const map = this.state.map;
-    if (map && this._onPopupOpen) {
-      map.off('popupopen', this._onPopupOpen);
+    if (map && this.onPopupOpen) {
+      map.off('popupopen', this.onPopupOpen);
     }
   }
 
-  _setMap (mapSize) {
+  setMap() {
     const map = this.state.map;
     map.setView([this.state.latitude, this.state.longitude], 5);
     Leaflet.tileLayer(
       'http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
-        attribution: '&copy;OpenStreetMap, &copy;CartoDB'
+        attribution: '&copy;OpenStreetMap, &copy;CartoDB',
       }).addTo(map);
     const circle = Leaflet.circleMarker(
       [this.state.latitude, this.state.longitude], {
         color: '#FF8D6D',
         opacity: 0.8,
-        fillOpacity: 0.8
+        fillOpacity: 0.8,
       }).addTo(map);
 
-    const directionsLink =
-      `<br/><a href="http://maps.google.com/maps?` +
-      `saddr=${this.state.latitude},${this.state.longitude}" ` +
-      `target="_blank"><span>(Directions)</span></a>`;
+    const directionsLink = (
+      `<br/><a href='http://maps.google.com/maps?saddr=${this.state.latitude},${this.state.longitude}' target='_blank'><span>(Directions)</span></a>`
+    );
     const address = `<h5><strong>${this.props.title}</strong></h5>
-      ${this._renderAddress().join('<br/>')}
+      ${this.renderAddress().join('<br/>')}
       ${directionsLink}`;
     circle.bindPopup(address).openPopup();
   }
 
-  _getGeocode (props, attempts) {
+  getGeocode(props, attempts) {
     if (props.country) {
       let params = {
         state: props.state,
         country: props.country,
-        format: 'json'
+        format: 'json',
       };
 
+      /* eslint-disable no-param-reassign, no-plusplus */
       if (!attempts) {
         attempts = 1;
-        this.setState({busy: true, place: null});
+        this.setState({ busy: true, place: undefined });
 
         if (props.street) {
           params.street =
@@ -118,12 +123,12 @@ export default class Map extends Component {
         params = {
           city: props.city,
           country: props.country,
-          format: 'json'
+          format: 'json',
         };
       } else if (attempts === 4) {
         params = {
           country: props.country,
-          format: 'json'
+          format: 'json',
         };
       }
 
@@ -132,7 +137,7 @@ export default class Map extends Component {
         1: 14,
         2: 10,
         3: 10,
-        4: 5
+        4: 5,
       };
 
       Rest
@@ -140,59 +145,73 @@ export default class Map extends Component {
           `${window.location.protocol}//nominatim.openstreetmap.org/search`,
           params
         )
-        .end(function (err, res) {
-          if (! err && res.ok && res.body && res.body[0]) {
+        .end((err, res) => {
+          if (!err && res.ok && res.body && res.body[0]) {
             const place = res.body[0];
             this.setState(
-              {latitude: place.lat, longitude: place.lon, busy: false},
-              this._setMap.bind(this, mapSize[attempts])
+              { latitude: place.lat, longitude: place.lon, busy: false },
+              this.setMap.bind(this, mapSize[attempts])
             );
           } else if (attempts < 4) {
-            this._getGeocode(props, ++attempts);
+            this.getGeocode(props, ++attempts);
           } else {
             console.log('!!! geocode response error', err, res);
             if (this.state.map) {
               this.state.map.remove();
-              // findDOMNode(this._mapRef).className = "";
+              // findDOMNode(this._mapRef).className = '';
             }
-            this.setState({map: null, busy: false});
+            this.setState({ map: undefined, busy: false });
           }
-        }.bind(this));
+        });
+      /* eslint-enable no-param-reassign, no-plusplus */
     }
   }
 
-  _renderAddress () {
+  renderAddress() {
     let addressArray = [this.props.city, this.props.state,
       this.props.postalCode, this.props.country];
 
     // parse street addresses with '$' into separate lines
     if (this.props.street) {
-      const parsedStreet = this.props.street.split('$')
-        .map((addressLine) => addressLine.trim());
+      const parsedStreet = this.props.street.split('$').map(addressLine => addressLine.trim());
       addressArray = parsedStreet.concat(addressArray);
     }
 
     return addressArray;
   }
 
-  render () {
+  render() {
     let address;
-    if (! this.state.busy && ! this.state.latitude) {
+    if (!this.state.busy && !this.state.latitude) {
       address = (
-        <Section pad={{horizontal: "medium"}}>
-          {this._renderAddress().map(function (e, i) {
-            return <div key={i}>{e}</div>;
-          })}
+        <Section pad={{ horizontal: 'medium' }}>
+          {this.renderAddress().filter(e => e).map(e => <div key={e}>{e}</div>)}
         </Section>
       );
     }
     return (
-      <Box ref={ref => this._mapRef = ref} className="map" flex={true}>
+      <Box
+        ref={(ref) => {
+          this.mapRef = ref;
+        }}
+        className='map'
+        flex={true}
+      >
         {address}
       </Box>
     );
   }
+}
 
+Map.defaultProps = {
+  city: undefined,
+  country: undefined,
+  latitude: undefined,
+  longitude: undefined,
+  postalCode: undefined,
+  state: undefined,
+  street: undefined,
+  title: undefined,
 };
 
 Map.propTypes = {
@@ -203,5 +222,5 @@ Map.propTypes = {
   postalCode: PropTypes.string,
   state: PropTypes.string,
   street: PropTypes.string,
-  title: PropTypes.string
+  title: PropTypes.string,
 };

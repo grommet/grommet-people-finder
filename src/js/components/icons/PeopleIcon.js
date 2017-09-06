@@ -1,18 +1,23 @@
 // (C) Copyright 2014-2016 Hewlett Packard Enterprise Development LP
 /* eslint-disable max-len, react/self-closing-comp */
 
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import SVGIcon from 'grommet/components/SVGIcon';
 
 export default class PeopleIcon extends Component {
-
-  render () {
+  render() {
     const { className, reverse } = this.props;
     const stroke = reverse ? '#ffffff' : '#865CD6';
 
     return (
-      <SVGIcon className={className} viewBox='0 0 128 128'
-        version='1.1' type='logo' a11yTitle='People Icon'>
+      <SVGIcon
+        className={className}
+        viewBox='0 0 128 128'
+        version='1.1'
+        type='logo'
+        a11yTitle='People Icon'
+      >
         <g stroke={stroke} strokeWidth='4' fill='none'>
           <rect x='14' y='40' width='100' height='66' rx='4' />
           <circle cx='64' cy='31' r='2' />
@@ -26,9 +31,12 @@ export default class PeopleIcon extends Component {
       </SVGIcon>
     );
   }
+}
 
+PeopleIcon.defaultProps = {
+  reverse: undefined,
 };
 
 PeopleIcon.propTypes = {
-  reverse: PropTypes.bool
+  reverse: PropTypes.bool,
 };

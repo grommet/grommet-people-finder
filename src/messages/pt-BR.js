@@ -1,6 +1,6 @@
 // (C) Copyright 2014-2016 Hewlett Packard Enterprise Development LP
 
-module.exports = {
+export default {
   'People Finder': 'Localizador de Pessoas',
   'Groups Finder': 'Localizador de Grupos',
   'Locations Finder': 'Localizador de Locais',
@@ -17,5 +17,5 @@ module.exports = {
   'People matching': 'Pessoas correspondentes {search}',
   'Groups matching': 'Grupos correspondentes {search}',
   'Locations matching': 'Locais correspondentes {search}',
-  'Refine search to find more': 'Refinar a pesquisa para encontrar mais.'
+  'Refine search to find more': 'Refinar a pesquisa para encontrar mais.',
 };

@@ -1,6 +1,6 @@
 // (C) Copyright 2014-2016 Hewlett Packard Enterprise Development LP
 
-module.exports = {
+export default {
   'People Finder': 'ピープルファインダー',
   'Groups Finder': 'グループファインダー',
   'Locations Finder': '場所ファインダー',
@@ -14,5 +14,5 @@ module.exports = {
   'People matching': 'マッチング人々 {search}',
   'Groups matching': 'マッチンググループ {search}',
   'Locations matching': '一致する場所 {search}',
-  'Refine search to find more': '詳細を見つけるために検索を絞り込みます'
+  'Refine search to find more': '詳細を見つけるために検索を絞り込みます',
 };

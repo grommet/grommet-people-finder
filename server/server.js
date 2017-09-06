@@ -1,19 +1,20 @@
 // (C) Copyright 2014-2015 Hewlett Packard Enterprise Development LP
 
-var compression = require('compression');
-var express = require('express');
-var http = require("http");
-var router = express.Router();
-var morgan = require('morgan');
-var bodyParser = require('body-parser');
-var cookieParser = require('cookie-parser');
-var path = require('path');
+import compression from 'compression';
+import express from 'express';
+import http from 'http';
+import morgan from 'morgan';
+import bodyParser from 'body-parser';
+import cookieParser from 'cookie-parser';
+import path from 'path';
 
-var ldap = require('./ldap');
+import ldap from './ldap';
 
-var PORT = process.env.PORT || 8020;
+const router = express.Router();
 
-var app = express();
+const PORT = process.env.PORT || 8020;
+
+const app = express();
 
 app.use(compression());
 
@@ -23,30 +24,26 @@ app.use(morgan('tiny'));
 
 app.use(bodyParser.json());
 
-app.
-  use('/ldap', ldap).
-  use('', router);
+app.use('/ldap', ldap).use('', router);
 
-app.use('/', function(req, res, next) {
-  var acceptLanguageHeader = req.headers['accept-language'];
-
+app.use('/', (req, res, next) => {
+  const acceptLanguageHeader = req.headers['accept-language'];
   if (acceptLanguageHeader) {
-    var acceptedLanguages = acceptLanguageHeader.match(/[a-zA-z\-]{2,10}/g);
+    const acceptedLanguages = acceptLanguageHeader.match(/[a-zA-z-]{2,10}/g);
     if (acceptedLanguages) {
       res.cookie('languages', JSON.stringify(acceptedLanguages));
     }
   }
-
   next();
 });
 
 app.use('/', express.static(path.join(__dirname, '/../dist')));
-app.get('/*', function (req, res) {
-  res.sendFile(path.resolve(path.join(__dirname, '/../dist/index.html')));
-});
+app.get(
+  '/*', (req, res) => res.sendFile(path.resolve(path.join(__dirname, '/../dist/index.html')))
+);
 
-var server = http.createServer(app);
+const server = http.createServer(app);
 
 server.listen(PORT);
 
-console.log('Server started, listening at: http://localhost:' + PORT + '...');
+console.log(`Server started, listening at: http://localhost:${PORT}...`);

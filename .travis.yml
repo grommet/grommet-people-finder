@@ -1,16 +1,21 @@
 language: node_js
-node_js: '5'
+node_js:
+  - '6.9.1'
 sudo: false
-before_script: npm install -g gulp
-script: gulp dist
+cache:
+  directories:
+  - node_modules
+script:
+  - npm test
 after_success:
 - |
   if [ "$TRAVIS_BRANCH" = "master" ] && [ "$TRAVIS_PULL_REQUEST" = false ]; then
     git config credential.helper "store --file=.git/credentials"
     echo "https://${GH_TOKEN}:@github.com" > .git/credentials
     git config --global user.name "Grommet Community Bot"
-    git config --global user.email "asouza@hp.com"
-    gulp release:heroku
+    git config --global user.email "grommet@hpe.com"
+    npm run dist
+    npm run release-heroku
   fi
 env:
   global:

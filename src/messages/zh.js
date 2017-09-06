@@ -1,6 +1,6 @@
 // (C) Copyright 2014-2016 Hewlett Packard Enterprise Development LP
 
-module.exports = {
+export default {
   'People Finder': '寻人',
   'Groups Finder': '论坛搜索',
   'Locations Finder': '地点搜索',
@@ -14,5 +14,5 @@ module.exports = {
   'People matching': '人们匹配 {search}',
   'Groups matching': '组配对 {search}',
   'Locations matching': '位置匹配 {search}',
-  'Refine search to find more': '细化搜索以找到更多'
+  'Refine search to find more': '细化搜索以找到更多',
 };
